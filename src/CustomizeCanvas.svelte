@@ -1,12 +1,12 @@
 <script>
   import { onMount, afterUpdate } from "svelte";
+  import { PartyParrotPositions } from './gifpositions';
   import GIF from "./gif.js";
-
 
   let frameCount = 0;
   export let croppedImage;
   let canvas, ctx;
-  const positionsArr = [];
+  let positionsArr = [];
   let arr;
 
   let canvasOffset,
@@ -19,7 +19,6 @@
     isDragging = false,
     canDrag = true,
     playInterval;
-
 
   const onScroll = (e) => setOffsets();
 
@@ -35,8 +34,9 @@
     console.log(croppedImage);
     if (croppedImage && !arr?.length) {
       extractGif().then((imgArr) => {
-          arr = imgArr;
-          setFrame(0);
+        positionsArr = [...PartyParrotPositions];
+        arr = imgArr;
+        setFrame(0);
       });
     }
   });
@@ -46,7 +46,6 @@
     offsetX = canvasOffset.left;
     offsetY = canvasOffset.top;
   }
-
 
   function extractGif() {
     const Img = [];
@@ -99,13 +98,13 @@
   }
 
   function playCanvas() {
-      playInterval = setInterval(() => {
-          setFrame(frameCount + 1)
-      }, 100);
+    playInterval = setInterval(() => {
+      setFrame(frameCount + 1);
+    }, 100);
   }
 
   function pauseCanvas() {
-      clearInterval(playInterval);
+    clearInterval(playInterval);
   }
 
   function handleImageMouseDown(e) {
@@ -126,7 +125,7 @@
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
     // user has left the canvas, so clear the drag flag
-    isDragging=false;
+    isDragging = false;
   }
 
   function handleImageMouseMove(e) {
@@ -154,8 +153,9 @@
       quality: 8,
       transparent: 0x000000,
       width: 128,
-      height: 128
+      height: 128,
     });
+    console.log("POSITIONS ARR", positionsArr);
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = 128;
     tempCanvas.height = 128;
@@ -164,7 +164,7 @@
     console.log("image arr", arr);
     arr.forEach((image, frameCount) => {
       tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-    //   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      //   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       console.log("frameCount", frameCount);
       drawAnimatedImage(frameCount, tempCtx);
       drawOverlayImage(frameCount, tempCtx);
@@ -181,26 +181,28 @@
   }
 </script>
 
-<div id="generate" on:click={generateGif}>Generate</div>
-<div id="playCanvas" on:click={playCanvas}>Play</div>
-<div id="pauseCanvas" on:click={pauseCanvas}>Pause</div>
-<div id="incrementFrame" on:click={() => setFrame(frameCount + 1)}>
-  Increment
+<div class="custom-canvas-container">
+  <div id="generate" on:click={generateGif}>Generate</div>
+  <div id="playCanvas" on:click={playCanvas}>Play</div>
+  <div id="pauseCanvas" on:click={pauseCanvas}>Pause</div>
+  <div id="incrementFrame" on:click={() => setFrame(frameCount + 1)}>
+    Increment
+  </div>
+  <div id="decrementFrame" on:click={() => setFrame(frameCount - 1)}>
+    Decrement
+  </div>
+  <div>{frameCount}</div>
+  <canvas
+    id="gifCanvas"
+    width="128"
+    height="128"
+    on:scroll={onScroll}
+    on:mousedown={handleImageMouseDown}
+    on:mousemove={handleImageMouseMove}
+    on:mouseup={handleImageMouseUp}
+    on:mouseout={handleImageMouseOut}
+  />
 </div>
-<div id="decrementFrame" on:click={() => setFrame(frameCount - 1)}>
-  Decrement
-</div>
-<div>{frameCount}</div>
-<canvas
-  id="gifCanvas"
-  width="128"
-  height="128"
-  on:scroll={onScroll}
-  on:mousedown={handleImageMouseDown}
-  on:mousemove={handleImageMouseMove}
-  on:mouseup={handleImageMouseUp}
-  on:mouseout={handleImageMouseOut}
-/>
 
 <style>
   canvas {

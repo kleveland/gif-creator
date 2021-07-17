@@ -1,6 +1,9 @@
 <script>
   import { cropImageDimensions, getOffset } from "./crop";
-  import { getContext, onMount } from "svelte";
+  import { onMount } from "svelte";
+
+  const ZOOM_INCREASE = 0.3;
+  const ZOOM_DECREASE = 0.1;
 
   let fileinput;
   export let onCrop;
@@ -49,23 +52,11 @@
     document.getElementById("posy").innerHTML = e.offsetY;
   }
 
-  function contrastImage(imgData, contrast){  //input range [-100..100]
-    var d = imgData.data;
-    contrast = (contrast/100) + 1;  //convert to decimal & shift range: [0..2]
-    var intercept = 128 * (1 - contrast);
-    for(var i=0;i<d.length;i+=4){   //r,g,b,a
-        d[i] = d[i]*contrast + intercept;
-        d[i+1] = d[i+1]*contrast + intercept;
-        d[i+2] = d[i+2]*contrast + intercept;
-    }
-    return imgData;
-}
-
   function onScroll(e) {
     e.preventDefault();
     if (checkScrollDirectionIsUp(e))
-      setZoom(zoomLevel + (zoomLevel >= 1 ? 0.5 : 0.2));
-    else setZoom(zoomLevel - (zoomLevel > 1 ? 0.5 : 0.2));
+      setZoom(zoomLevel + (zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE));
+    else setZoom(zoomLevel - (zoomLevel > 1 ? ZOOM_INCREASE : ZOOM_DECREASE));
   }
 
   function checkScrollDirectionIsUp(event) {
@@ -97,11 +88,7 @@
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
     isDragging = false;
-    if (e.button === 1 && imageObj) {
-      console.log(canvas.toDataURL("image/jpeg"));
-      imageObj.src = canvas.toDataURL("image/jpeg");
-      setImageLoad();
-    }
+    if (e.button === 1 && imageObj) setImageLoad(canvas.toDataURL("image/jpeg"));
   }
 
   function onImageMouseOut(e) {
@@ -163,17 +150,16 @@
         canvas.width = width;
         canvas.height = height;
         tempCanvas.getContext("2d").drawImage(rawImageObj, 0, 0, width, height);
-        const resizedImage = new Image();
-        newWidth = canvas.width;
-        newHeight = canvas.height;
-        imageObj = resizedImage;
-        imageObj.src = tempCanvas.toDataURL("image/jpeg");
-        setImageLoad();
+        setImageLoad(tempCanvas.toDataURL("image/jpeg"), canvas.width, canvas.height, new Image());
       };
     };
   }
 
-  function setImageLoad(width = newWidth, height = newHeight) {
+  function setImageLoad(imageSrc, width = newWidth, height = newHeight, newImageObj) {
+    if (newImageObj) imageObj = newImageObj;
+    imageObj.src = imageSrc;
+    newWidth = width;
+    newHeight = height;
     imageObj.onload = () => {
       console.log("loaded");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -185,12 +171,8 @@
     if (level < 0.1) zoomLevel = 0.1;
     else if (level > 5) zoomLevel = 5;
     else zoomLevel = level;
-    console.log("set zoom", level);
     const [origWidth, origHeight] = [canvas.width, canvas.height];
-    newWidth = origWidth * level;
-    newHeight = origHeight * level;
-    imageObj.src = canvas.toDataURL("image/jpeg");
-    setImageLoad(newWidth, newHeight);
+    setImageLoad(canvas.toDataURL("image/jpeg"), origWidth * level, origHeight * level);
   }
 
   function cropImage() {
@@ -200,15 +182,11 @@
 
     while (spots[0]) spots[0].parentNode.removeChild(spots[0]);
     //clear canvas
-
-    //var context = canvas.getContext("2d");
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
     ctx.globalCompositeOperation = "destination-over";
     //draw the polygon
 
-    //console.log(points);
     const rect = document.querySelector("#cropCanvas").getBoundingClientRect();
     const offset = {
       top: rect.top + window.scrollY,
@@ -257,6 +235,7 @@
   }
 </script>
 
+<div class="image-import-container">
 <div
   class="chan"
   on:click={() => {
@@ -292,13 +271,13 @@
 </div>
 <div
   id="zoomIncrease"
-  on:click={() => setZoom(zoomLevel + (zoomLevel >= 1 ? 0.5 : 0.2))}
+  on:click={() => setZoom(zoomLevel + (zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE))}
 >
   Zoom +
 </div>
 <div
   id="zoomDecrease"
-  on:click={() => setZoom(zoomLevel - (zoomLevel > 1 ? 0.5 : 0.2))}
+  on:click={() => setZoom(zoomLevel - (zoomLevel > 1 ? ZOOM_INCREASE : ZOOM_DECREASE))}
 >
   Zoom -
 </div>
@@ -310,6 +289,7 @@
     croppedImage = cropImage();
   }}
 />
+</div>
 
 <style>
   canvas {

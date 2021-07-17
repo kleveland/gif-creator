@@ -1,6 +1,6 @@
 <script>
   import ImageImport from "./ImageImport.svelte";
-  import CustomizeCanvas from './CustomizeCanvas.svelte';
+  import CustomizeCanvas from "./CustomizeCanvas.svelte";
 
   let croppedImage;
 </script>
@@ -9,25 +9,21 @@
   <div id="app">
     <h1>Upload Image</h1>
     <div>
-      <div id="container">
-        <CustomizeCanvas croppedImage={croppedImage} />
+      <div class="generate-image-container" id="container">
         <ImageImport
           onCrop={(img) => {
-            console.log("IMAGE", img.src);
             croppedImage = img;
           }}
         />
+        <CustomizeCanvas {croppedImage} />
       </div>
     </div>
   </div>
 </main>
 
 <style>
-  main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
+  .generate-image-container {
+    display: flex;
   }
 
   h1 {
@@ -35,10 +31,5 @@
     text-transform: uppercase;
     font-size: 4em;
     font-weight: 100;
-  }
-
-  canvas {
-    box-shadow: 0 0 10px black;
-    margin: 20px;
   }
 </style>
