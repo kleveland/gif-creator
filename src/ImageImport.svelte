@@ -29,10 +29,17 @@
   onMount(() => {
     canvas = document.getElementById("cropCanvas");
     ctx = canvas.getContext("2d");
+    setOffsets();
+    document.addEventListener("scroll", setOffsets);
+    window.addEventListener("resize", setOffsets);
+  });
+
+  function setOffsets() {
+    console.log("resize", "scroll");
     const canvasOffset = canvas.getBoundingClientRect();
     offsetX = canvasOffset.left;
     offsetY = canvasOffset.top;
-  });
+  }
 
   function onImageMouseMove(e) {
     canMouseX = parseInt(e.clientX - offsetX);
@@ -67,9 +74,10 @@
   }
 
   function onImageMouseDown(e) {
-    console.log(e);
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
+    console.log("current mouse pos", canMouseX, canMouseY);
+    console.log("current image pos", position.x, position.y);
     if (
       e.button === 0 &&
       canMouseX > position.x &&
@@ -88,7 +96,8 @@
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
     isDragging = false;
-    if (e.button === 1 && imageObj) setImageLoad(canvas.toDataURL("image/jpeg"));
+    if (e.button === 1 && imageObj)
+      setImageLoad(canvas.toDataURL("image/jpeg"));
   }
 
   function onImageMouseOut(e) {
@@ -150,12 +159,22 @@
         canvas.width = width;
         canvas.height = height;
         tempCanvas.getContext("2d").drawImage(rawImageObj, 0, 0, width, height);
-        setImageLoad(tempCanvas.toDataURL("image/jpeg"), canvas.width, canvas.height, new Image());
+        setImageLoad(
+          tempCanvas.toDataURL("image/jpeg"),
+          canvas.width,
+          canvas.height,
+          new Image()
+        );
       };
     };
   }
 
-  function setImageLoad(imageSrc, width = newWidth, height = newHeight, newImageObj) {
+  function setImageLoad(
+    imageSrc,
+    width = newWidth,
+    height = newHeight,
+    newImageObj
+  ) {
     if (newImageObj) imageObj = newImageObj;
     imageObj.src = imageSrc;
     newWidth = width;
@@ -172,7 +191,11 @@
     else if (level > 5) zoomLevel = 5;
     else zoomLevel = level;
     const [origWidth, origHeight] = [canvas.width, canvas.height];
-    setImageLoad(canvas.toDataURL("image/jpeg"), origWidth * level, origHeight * level);
+    setImageLoad(
+      canvas.toDataURL("image/jpeg"),
+      origWidth * level,
+      origHeight * level
+    );
   }
 
   function cropImage() {
@@ -235,65 +258,60 @@
   }
 </script>
 
-<div class="image-import-container">
-<div
-  class="chan"
-  on:click={() => {
-    fileinput.click();
-  }}
->
-  Choose Image
-</div>
-<input
-  style="display:none"
-  type="file"
-  accept=".jpg, .jpeg, .png"
-  on:change={onFileSelected}
-  bind:this={fileinput}
-/>
-<div>
-  <canvas
-    id="cropCanvas"
-    width="300"
-    height="300"
-    style="position:relative;margin-left:0px;margin-top:0px;"
-    on:contextmenu={onImageRightClick}
-    on:wheel={onScroll}
-    on:mousedown={onImageMouseDown}
-    on:mousemove={onImageMouseMove}
-    on:mouseup={onImageMouseUp}
-    on:mouseout={onImageMouseOut}
-  />
-  <div id="oldposx" style="display:none;" />
-  <div id="oldposy" style="display:none;" />
-  <div id="posx" style="display:none;" />
-  <div id="posy" style="display:none;" />
-</div>
-<div
-  id="zoomIncrease"
-  on:click={() => setZoom(zoomLevel + (zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE))}
->
-  Zoom +
-</div>
-<div
-  id="zoomDecrease"
-  on:click={() => setZoom(zoomLevel - (zoomLevel > 1 ? ZOOM_INCREASE : ZOOM_DECREASE))}
->
-  Zoom -
-</div>
-<input
-  type="button"
-  id="crop"
-  value="CROP"
-  on:click={() => {
-    croppedImage = cropImage();
-  }}
-/>
+<div class="image-import-container mdl-card mdl-shadow--2dp">
+  <div>
+    <canvas
+      id="cropCanvas"
+      width="300"
+      height="300"
+      on:contextmenu={onImageRightClick}
+      on:wheel={onScroll}
+      on:mousedown={onImageMouseDown}
+      on:mousemove={onImageMouseMove}
+      on:mouseup={onImageMouseUp}
+      on:mouseout={onImageMouseOut}
+    />
+    <div id="oldposx" style="display:none;" />
+    <div id="oldposy" style="display:none;" />
+    <div id="posx" style="display:none;" />
+    <div id="posy" style="display:none;" />
+  </div>
+  <div class="mdl-card__supporting-text">INSTRUCTIONS HERE</div>
+  <div class="mdl-card__actions mdl-card--border">
+    <button
+      class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored"
+      id="import"
+      on:click={() => fileinput.click()}
+    >
+      Choose Image
+    </button>
+    <button
+      class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored"
+      role="button"
+      id="crop"
+      on:click={() => {
+        croppedImage = cropImage();
+      }}
+    >
+      Crop Selection
+    </button>
+    <input
+      style="display:none"
+      type="file"
+      accept=".jpg, .jpeg, .png"
+      on:change={onFileSelected}
+      bind:this={fileinput}
+    />
+  </div>
 </div>
 
 <style>
+  .image-import-container {
+    margin: auto;
+  }
   canvas {
-    box-shadow: 0 0 10px black;
-    margin: 20px;
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%),
+      0 1px 5px 0 rgb(0 0 0 / 12%);
+    margin: 1em auto;
   }
 </style>

@@ -1,6 +1,7 @@
 <script>
   import { onMount, afterUpdate } from "svelte";
   import { PartyParrotPositions } from './gifpositions';
+  import Button from './Button.svelte';
   import GIF from "./gif.js";
 
   let frameCount = 0;
@@ -18,6 +19,9 @@
     canvasHeight,
     isDragging = false,
     canDrag = true,
+    position = { x: 0, y: 0 },
+    imageOrigPos = { ...position },
+    clickOrigPos,
     playInterval;
 
   const onScroll = (e) => setOffsets();
@@ -28,6 +32,8 @@
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
     setOffsets();
+    document.addEventListener('scroll', setOffsets);
+    window.addEventListener('resize', setOffsets);
   });
 
   afterUpdate(() => {
@@ -69,10 +75,7 @@
     console.log(frameCount, arr.length);
     if (frameCount > arr.length - 1) frameCount = 0;
     if (frameCount < 0) frameCount = arr.length - 1;
-    if (arr.length == 10) {
-      drawAnimatedImage(frameCount);
-      drawOverlayImage(frameCount);
-    }
+    if (arr.length == 10) drawFrame(frameCount);
   }
 
   function drawAnimatedImage(frame, overrideCtx) {
@@ -90,10 +93,9 @@
     const midX = croppedImage.width / 4;
     const midY = croppedImage.height / 4;
     console.log(midX, midY);
+    console.log(positionsArr, frameCount)
     targetCtx.drawImage(
-      croppedImage,
-      positionsArr[frameCount]?.x ? positionsArr[frameCount]?.x : midX,
-      positionsArr[frameCount]?.y ? positionsArr[frameCount]?.y : midY
+        croppedImage, positionsArr[frameCount].x, positionsArr[frameCount].y, croppedImage.width, croppedImage.height
     );
   }
 
@@ -108,10 +110,18 @@
   }
 
   function handleImageMouseDown(e) {
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
-    // set the drag flag
-    isDragging = true;
+    if (
+      e.button === 0 &&
+      canMouseX > positionsArr[frameCount].x &&
+      canMouseY > positionsArr[frameCount].y &&
+      canMouseX < positionsArr[frameCount].x + croppedImage.width &&
+      canMouseY < positionsArr[frameCount].y + croppedImage.height
+    ) {
+      clickOrigPos = { x: canMouseX, y: canMouseY };
+      imageOrigPos = { ...positionsArr[frameCount] };
+      console.log("orig pos", clickOrigPos);
+      isDragging = true;
+    }
   }
 
   function handleImageMouseUp(e) {
@@ -133,18 +143,19 @@
     canMouseY = parseInt(e.clientY - offsetY);
     // if the drag flag is set, clear the canvas and draw the image
     if (isDragging) {
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-      drawAnimatedImage(frameCount);
+      console.log(canMouseX, canMouseY);
       positionsArr[frameCount] = {
-        x: canMouseX - croppedImage.width / 2,
-        y: canMouseY - croppedImage.height / 2,
+        x: imageOrigPos.x - (clickOrigPos.x - canMouseX),
+        y: imageOrigPos.y - (clickOrigPos.y - canMouseY),
       };
-      ctx.drawImage(
-        croppedImage,
-        positionsArr[frameCount].x,
-        positionsArr[frameCount].y
-      );
+      drawFrame();
     }
+  }
+
+  function drawFrame(frame = frameCount) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawAnimatedImage(frame);
+      drawOverlayImage(frame);
   }
 
   function generateGif() {
@@ -181,19 +192,17 @@
   }
 </script>
 
-<div class="custom-canvas-container">
-  <div id="generate" on:click={generateGif}>Generate</div>
-  <div id="playCanvas" on:click={playCanvas}>Play</div>
-  <div id="pauseCanvas" on:click={pauseCanvas}>Pause</div>
-  <div id="incrementFrame" on:click={() => setFrame(frameCount + 1)}>
-    Increment
-  </div>
-  <div id="decrementFrame" on:click={() => setFrame(frameCount - 1)}>
-    Decrement
-  </div>
-  <div>{frameCount}</div>
+<div class="mdl-card mdl-shadow--2dp">
+<Button id="generate" onClick={generateGif} buttonText="Generate" />
+  <Button id="playCanvas" onClick={playCanvas} buttonText="Play" />
+  <Button id="pauseCanvas" onClick={pauseCanvas} buttonText="Pause"/>
+  <Button id="incrementFrame" onClick={() => setFrame(frameCount + 1)} buttonText="Increment" />
+  <Button id="decrementFrame" onClick={() => setFrame(frameCount - 1)} buttonText="Decrement" />
+  <span class="gif-canvas-container mdl-badge" data-badge={frameCount}>
   <canvas
     id="gifCanvas"
+    class="gif-canvas"
+    data-badge={frameCount}
     width="128"
     height="128"
     on:scroll={onScroll}
@@ -201,12 +210,23 @@
     on:mousemove={handleImageMouseMove}
     on:mouseup={handleImageMouseUp}
     on:mouseout={handleImageMouseOut}
-  />
+  /></span>
 </div>
 
 <style>
-  canvas {
-    box-shadow: 0 0 10px black;
-    margin: 20px;
+  .gif-canvas {
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%),
+      0 1px 5px 0 rgb(0 0 0 / 12%);
+  }
+
+  .gif-canvas-container {
+      width: 128px;
+      height: 128px;
+      margin: 1em auto;
+  }
+
+  .gif-canvas-container::after {
+      top: -8px;
+      right: -9px;
   }
 </style>
