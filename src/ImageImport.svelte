@@ -200,14 +200,19 @@
 
   function cropImage() {
     const appliedImage = new Image();
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext("2d");
+        tempCtx.drawImage(canvas, 0, 0);
     appliedImage.src = canvas.toDataURL("image/jpeg");
     let spots = document.getElementsByClassName("spot");
 
     while (spots[0]) spots[0].parentNode.removeChild(spots[0]);
     //clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    ctx.globalCompositeOperation = "destination-over";
+    tempCtx.clearRect(0, 0, canvas.width, canvas.height);
+    tempCtx.beginPath();
+    tempCtx.globalCompositeOperation = "destination-over";
     //draw the polygon
 
     const rect = document.querySelector("#cropCanvas").getBoundingClientRect();
@@ -231,17 +236,17 @@
       if (x > rightMost) rightMost = x;
       if (y > bottomMost) bottomMost = y;
 
-      if (i == 0) ctx.moveTo(x - offset.left, y - offset.top);
-      else ctx.lineTo(x - offset.left, y - offset.top);
+      if (i == 0) tempCtx.moveTo(x - offset.left, y - offset.top);
+      else tempCtx.lineTo(x - offset.left, y - offset.top);
       //console.log(points[i],points[i+1])
     }
     console.log(imageObj);
     appliedImage.onload = () => {
-      let pattern = ctx.createPattern(appliedImage, "repeat");
-      ctx.fillStyle = pattern;
-      ctx.fill();
+      let pattern = tempCtx.createPattern(appliedImage, "repeat");
+      tempCtx.fillStyle = pattern;
+      tempCtx.fill();
 
-      var dataurl = canvas.toDataURL("image/png");
+      var dataurl = tempCanvas.toDataURL("image/png");
 
       console.log(dataurl);
       console.log(leftMost, topMost, rightMost, bottomMost);
