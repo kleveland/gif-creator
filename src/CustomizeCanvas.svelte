@@ -1,13 +1,16 @@
 <script>
   import { onMount, afterUpdate } from "svelte";
-  import { PartyParrotPositions } from "./gifpositions";
+  import * as gifList from "./giflist";
+  import GifList from './GifList.svelte';
   import Button from "./Button.svelte";
   import GIF from "./gif.js";
 
   let frameCount = 0;
   export let croppedImage;
   let imageSelection = "partyParrot";
-  let loadedSelection;
+  let imageFrameCount = 36;
+  let imagePlayRate = 25;
+  let loadedSelection = "partyParrot";
   let canvas, ctx;
   let positionsArr = [];
   let arr;
@@ -38,16 +41,22 @@
     window.addEventListener("resize", setOffsets);
     extractGif().then((imgArr) => {
       arr = imgArr;
+        positionsArr = [...gifList[imageSelection].positions];
+        imagePlayRate = gifList[imageSelection].playSpeed;
       setFrame(0);
     });
   });
 
   afterUpdate(() => {
     console.log(croppedImage);
-    if (croppedImage && imageSelection !== loadedSelection) {
-      extractGif().then((imgArr) => {
+    console.log(imageSelection);
+    if (imageSelection !== loadedSelection) {
+        console.log(imageSelection, loadedSelection);
+      extractGif(imageSelection).then((imgArr) => {
+          console.log(imgArr);
         loadedSelection = imageSelection;
-        positionsArr = [...PartyParrotPositions];
+        positionsArr = [...gifList[imageSelection].positions];
+        imagePlayRate = gifList[imageSelection].playSpeed;
         arr = imgArr;
         setFrame(0);
       });
@@ -60,14 +69,16 @@
     offsetY = canvasOffset.top;
   }
 
-  function extractGif() {
+  function extractGif(imageSelection = loadedSelection) {
     const Img = [];
     let imgsLoaded = 0;
-    const totalFrames = 10;
+    const totalFrames = gifList[imageSelection].positions.length;
+    console.log(imageSelection, totalFrames);
+    imageFrameCount = totalFrames;
     return new Promise((resolve, reject) => {
       for (var i = 0; i < totalFrames; i++) {
         Img[i] = new Image();
-        Img[i].src = "partyparrot/" + i + ".png";
+        Img[i].src = `${imageSelection}/${i}.gif`;
         Img[i].onload = () => {
           imgsLoaded++;
           if (imgsLoaded === totalFrames) resolve(Img);
@@ -78,11 +89,12 @@
 
   function setFrame(frame) {
     ctx.clearRect(0, 0, 1000, 1000);
+    console.log(positionsArr);
     frameCount = frame;
     console.log(frameCount, arr.length);
     if (frameCount > arr.length - 1) frameCount = 0;
     if (frameCount < 0) frameCount = arr.length - 1;
-    if (arr.length == 10) drawFrame(frameCount);
+    if (arr.length == imageFrameCount) drawFrame(frameCount);
   }
 
   function drawAnimatedImage(frame, overrideCtx) {
@@ -100,12 +112,16 @@
       const targetCtx = overrideCtx ?? ctx;
       const midX = croppedImage.width / 4;
       const midY = croppedImage.height / 4;
+      const posX = 
+        positionsArr[frameCount]?.x ? positionsArr[frameCount].x : 0;
+        const posY = 
+        positionsArr[frameCount]?.y ? positionsArr[frameCount].y : 0;
       console.log(midX, midY);
       console.log(positionsArr, frameCount);
       targetCtx.drawImage(
         croppedImage,
-        positionsArr[frameCount].x,
-        positionsArr[frameCount].y,
+        posX,
+        posY,
         croppedImage.width,
         croppedImage.height
       );
@@ -116,7 +132,7 @@
     if (!playInterval)
       playInterval = setInterval(() => {
         setFrame(frameCount + 1);
-      }, 100);
+      }, imagePlayRate);
   }
 
   function pauseCanvas() {
@@ -130,15 +146,20 @@
   }
 
   function handleImageMouseDown(e) {
+      
+    const posX = 
+        positionsArr[frameCount]?.x ? positionsArr[frameCount].x : 0;
+        const posY = 
+        positionsArr[frameCount]?.y ? positionsArr[frameCount].y : 0;
     if (
       e.button === 0 &&
-      canMouseX > positionsArr[frameCount].x &&
-      canMouseY > positionsArr[frameCount].y &&
-      canMouseX < positionsArr[frameCount].x + croppedImage.width &&
-      canMouseY < positionsArr[frameCount].y + croppedImage.height
+      canMouseX > posX &&
+      canMouseY > posY &&
+      canMouseX < posX + croppedImage.width &&
+      canMouseY < posY + croppedImage.height
     ) {
       clickOrigPos = { x: canMouseX, y: canMouseY };
-      imageOrigPos = { ...positionsArr[frameCount] };
+      imageOrigPos = { x: posX, y: posY };
       console.log("orig pos", clickOrigPos);
       isDragging = true;
     }
@@ -178,6 +199,19 @@
     drawOverlayImage(frame);
   }
 
+//   function handleGifChange(event) {
+//       console.log(event.target.value);
+//       imageSelection = event.target.value;
+//       extractGif(imageSelection).then((imgArr) => {
+//           console.log(imgArr);
+//         loadedSelection = imageSelection;
+//         positionsArr = [...gifList[imageSelection].positions];
+//         imagePlayRate = gifList[imageSelection].playSpeed;
+//         arr = imgArr;
+//         setFrame(0);
+//       });
+//   }
+
   function generateGif() {
     const gif = new GIF({
       workers: 2,
@@ -199,7 +233,7 @@
       console.log("frameCount", frameCount);
       drawAnimatedImage(frameCount, tempCtx);
       drawOverlayImage(frameCount, tempCtx);
-      gif.addFrame(tempCtx, { copy: true, delay: 100 });
+      gif.addFrame(tempCtx, { copy: true, delay: imagePlayRate });
       console.log(image, frameCount);
     });
     gif.on("finished", function (blob) {
@@ -213,6 +247,7 @@
 </script>
 
 <div class="mdl-card mdl-shadow--2dp">
+    <GifList bind:selectedOption={imageSelection}/>
   <span class="gif-canvas-container">
     <canvas
       id="gifCanvas"
@@ -228,13 +263,13 @@
   >
   <div class="frame-count-container">
     <button
-      class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--mini-fab"
+      class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--2mini-fab"
       on:click={() => setFrame(frameCount - 1)}
     >
       <i class="material-icons">remove</i>
     </button>
     <span class="mdl-chip mdl-chip--deletable">
-      <span class="mdl-chip__text">Frame {frameCount}</span>
+      <span class="mdl-chip__text">Frame {frameCount + 1}</span>
       <button on:click={toggleCanvas} type="button" class="mdl-chip__action">
         {#if !playInterval}
           <i class="material-icons">play_arrow</i>
@@ -244,7 +279,7 @@
       </button>
     </span>
     <button
-      class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--mini-fab"
+      class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--2mini-fab"
       on:click={() => setFrame(frameCount + 1)}
     >
       <i class="material-icons">add</i>
@@ -263,6 +298,13 @@
     width: 200px;
     margin: auto;
   }
+
+  .mdl-button--2mini-fab {
+      height: 30px;
+      min-width: 30px;
+      width: 30px;
+  }
+
   .gif-canvas {
     box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%),
       0 1px 5px 0 rgb(0 0 0 / 12%);
