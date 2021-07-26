@@ -1,24 +1,24 @@
 <script>
   import ImageImport from "./ImageImport.svelte";
   import CustomizeCanvas from "./CustomizeCanvas.svelte";
+  import GifList from "./GifList.svelte";
 
-  let croppedImage;
+  let croppedImage, imageSelection;
 </script>
 
 <main class="container">
   <div id="app">
-    <h1>Upload Image</h1>
+    <h1>Face GIF</h1>
     <div class="main-content">
       <div class="mdl-grid">
-        <div class="mdl-cell mdl-cell--6-col">
-          <ImageImport
-            onCrop={(img) => {
-              croppedImage = img;
-            }}
-          />
+        <div class="mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-cell--12-col-phone">
+          <ImageImport bind:croppedImage />
         </div>
-        <div class="mdl-cell mdl-cell--6-col">
-          <CustomizeCanvas {croppedImage} />
+        <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-phone">
+            <GifList bind:selectedOption={imageSelection} />
+        </div>
+        <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-phone">
+          <CustomizeCanvas {croppedImage} {imageSelection} />
         </div>
       </div>
     </div>
@@ -27,15 +27,12 @@
 
 <style>
   .main-content {
-    max-width: 900px;
-    margin:auto;
+    max-width: 1200px;
+    margin: auto;
     text-align: center;
   }
+
   h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
     text-align: center;
-    font-size: 4em;
-    font-weight: 100;
   }
 </style>

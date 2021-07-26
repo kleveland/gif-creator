@@ -152,7 +152,7 @@
         const tempCanvas = document.createElement("canvas");
         // Handle resizing image as needed on canvas
         const whRatio = rawImageObj.height / rawImageObj.width;
-        const width = 300;
+        const width = 250;
         const height = whRatio * width;
         tempCanvas.width = width;
         tempCanvas.height = height;
@@ -257,18 +257,22 @@
         topMost - canvasCoords.top,
         rightMost - leftMost,
         bottomMost - topMost,
-        onCrop
+        (img) => croppedImage = img
       );
     };
   }
 </script>
 
 <div class="image-import-container mdl-card mdl-shadow--2dp">
+      
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">1. Crop</h2>
+  </div>
   <div>
     <canvas
       id="cropCanvas"
-      width="300"
-      height="300"
+      width="250"
+      height="250"
       on:contextmenu={onImageRightClick}
       on:wheel={onScroll}
       on:mousedown={onImageMouseDown}
@@ -312,7 +316,11 @@
 
 <style>
   .image-import-container {
+    width: 100%;
     margin: auto;
+  }
+  .mdl-card__title {
+    justify-content: center;
   }
   canvas {
     box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%),

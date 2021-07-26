@@ -7,7 +7,8 @@
 
   let frameCount = 0;
   export let croppedImage;
-  let imageSelection = "partyParrot";
+  let faceImage;
+  export let imageSelection = "partyParrot";
   let imageFrameCount = 36;
   let imagePlayRate = 25;
   let loadedSelection = "partyParrot";
@@ -48,10 +49,10 @@
   });
 
   afterUpdate(() => {
-    console.log(croppedImage);
     console.log(imageSelection);
-    if (imageSelection !== loadedSelection) {
+    if (faceImage !== croppedImage || imageSelection !== loadedSelection) {
         console.log(imageSelection, loadedSelection);
+      faceImage = croppedImage;
       extractGif(imageSelection).then((imgArr) => {
           console.log(imgArr);
         loadedSelection = imageSelection;
@@ -108,10 +109,10 @@
   }
 
   function drawOverlayImage(frameCount, overrideCtx) {
-    if (croppedImage) {
+    if (faceImage) {
       const targetCtx = overrideCtx ?? ctx;
-      const midX = croppedImage.width / 4;
-      const midY = croppedImage.height / 4;
+      const midX = faceImage.width / 4;
+      const midY = faceImage.height / 4;
       const posX = 
         positionsArr[frameCount]?.x ? positionsArr[frameCount].x : 0;
         const posY = 
@@ -119,11 +120,11 @@
       console.log(midX, midY);
       console.log(positionsArr, frameCount);
       targetCtx.drawImage(
-        croppedImage,
+        faceImage,
         posX,
         posY,
-        croppedImage.width,
-        croppedImage.height
+        faceImage.width,
+        faceImage.height
       );
     }
   }
@@ -155,8 +156,8 @@
       e.button === 0 &&
       canMouseX > posX &&
       canMouseY > posY &&
-      canMouseX < posX + croppedImage.width &&
-      canMouseY < posY + croppedImage.height
+      canMouseX < posX + faceImage.width &&
+      canMouseY < posY + faceImage.height
     ) {
       clickOrigPos = { x: canMouseX, y: canMouseY };
       imageOrigPos = { x: posX, y: posY };
@@ -246,8 +247,10 @@
   }
 </script>
 
-<div class="mdl-card mdl-shadow--2dp">
-    <GifList bind:selectedOption={imageSelection}/>
+<div class="customize-canvas-container mdl-card mdl-shadow--2dp">
+    <div class="mdl-card__title">
+      <h2 class="mdl-card__title-text">3. Generate</h2>
+    </div>
   <span class="gif-canvas-container">
     <canvas
       id="gifCanvas"
@@ -291,6 +294,13 @@
 </div>
 
 <style>
+  .customize-canvas-container {
+      width: 100%;
+  }
+  
+  .mdl-card__title {
+    justify-content: center;
+  }
   .frame-count-container {
     display: flex;
     justify-content: center;

@@ -5,7 +5,12 @@
 
 </script>
 
-<ul class="demo-list-control mdl-list">
+<div class="gif-list-container mdl-card mdl-shadow--2dp">
+    
+    <div class="mdl-card__title">
+        <h2 class="mdl-card__title-text">2. Pick</h2>
+      </div>
+<ul class="mdl-list">
   {#each gifListEntries as gif, i}
     <li class="mdl-list__item">
       <span class="mdl-list__item-primary-content">
@@ -34,8 +39,16 @@
     </li>
   {/each}
 </ul>
+</div>
 
 <style>
+.gif-list-container {
+    width: 100%;
+}
+
+.mdl-card__title {
+    justify-content: center;
+  }
   .gif-preview-image {
     width: 36px;
     height: auto;
