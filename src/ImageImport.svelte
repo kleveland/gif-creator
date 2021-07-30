@@ -6,8 +6,10 @@
   const ZOOM_DECREASE = 0.1;
 
   let fileinput;
-  export let onCrop;
+
   export let croppedImage;
+  export let step;
+  export let prevStep;
 
   let canvas,
     ctx,
@@ -257,7 +259,11 @@
         topMost - canvasCoords.top,
         rightMost - leftMost,
         bottomMost - topMost,
-        (img) => croppedImage = img
+        (img) => {
+          prevStep = 1;
+          step = 2;
+          croppedImage = img;
+        }
       );
     };
   }

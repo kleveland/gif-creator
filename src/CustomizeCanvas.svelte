@@ -7,6 +7,10 @@
 
   let frameCount = 0;
   export let croppedImage;
+  export let step;
+  const goBackStep = () => {
+      step = 1;
+  }
   let faceImage;
   export let imageSelection = "partyParrot";
   let imageFrameCount = 36;
@@ -290,6 +294,7 @@
   </div>
   <div class="mdl-card__supporting-text">INSTRUCTIONS HERE</div>
   <div class="mdl-card__actions mdl-card--border">
+    <Button id="goback" onClick={goBackStep} buttonText="Back" />
     <Button id="generate" onClick={generateGif} buttonText="Generate" /></div>
 </div>
 

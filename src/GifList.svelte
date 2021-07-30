@@ -1,8 +1,13 @@
 <script>
   import * as gifList from "./giflist";
+  import Button from './Button.svelte';
   const gifListEntries = Object.entries(gifList);
   export let selectedOption = 'partyParrot';
+  export let step;
 
+  function submitGif() {
+    step = 2;
+  }
 </script>
 
 <div class="gif-list-container mdl-card mdl-shadow--2dp">
@@ -39,6 +44,9 @@
     </li>
   {/each}
 </ul>
+
+<div class="mdl-card__actions mdl-card--border">
+    <Button id="continue" onClick={submitGif} buttonText="Continue" /></div>
 </div>
 
 <style>
