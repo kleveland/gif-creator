@@ -4,12 +4,13 @@
 
   const ZOOM_INCREASE = 0.3;
   const ZOOM_DECREASE = 0.1;
+  const INIT_WIDTH_CANVAS = 400;
 
   let fileinput;
 
   export let croppedImage;
   export let step;
-  export let prevStep;
+  export let nextStep;
 
   let canvas,
     ctx,
@@ -154,7 +155,7 @@
         const tempCanvas = document.createElement("canvas");
         // Handle resizing image as needed on canvas
         const whRatio = rawImageObj.height / rawImageObj.width;
-        const width = 250;
+        const width = INIT_WIDTH_CANVAS;
         const height = whRatio * width;
         tempCanvas.width = width;
         tempCanvas.height = height;
@@ -260,7 +261,7 @@
         rightMost - leftMost,
         bottomMost - topMost,
         (img) => {
-          prevStep = 1;
+          nextStep = 2;
           step = 2;
           croppedImage = img;
         }
@@ -277,8 +278,8 @@
   <div>
     <canvas
       id="cropCanvas"
-      width="250"
-      height="250"
+      width={INIT_WIDTH_CANVAS}
+      height={INIT_WIDTH_CANVAS}
       on:contextmenu={onImageRightClick}
       on:wheel={onScroll}
       on:mousedown={onImageMouseDown}
