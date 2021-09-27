@@ -35,7 +35,7 @@
     canvas = document.getElementById("cropCanvas");
     ctx = canvas.getContext("2d");
     outlineImg = new Image();
-    outlineImg.src = '/outline.png';
+    outlineImg.src = './outline.png';
     outlineImg.onload = () => {
       drawOutline();
     }
