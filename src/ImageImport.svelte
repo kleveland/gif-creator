@@ -35,9 +35,10 @@
     canvas = document.getElementById("cropCanvas");
     ctx = canvas.getContext("2d");
     outlineImg = new Image();
-    outlineImg.src = 'outline.png';
+    outlineImg.src = 'static_images/outline.png';
     outlineImg.onload = () => {
       drawOutline();
+      console.log(outlineImg);
     }
     setOffsets();
     document.addEventListener("scroll", setOffsets);
