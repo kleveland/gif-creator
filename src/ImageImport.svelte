@@ -16,6 +16,7 @@
     ctx,
     rawImageObj,
     imageObj,
+    outlineImg,
     zoomLevel = 1,
     canMouseX,
     canMouseY,
@@ -27,39 +28,48 @@
     newWidth,
     newHeight,
     isDragging = false;
+  let [prevPointX, prevPointY, curPointX, curPointY] = [null, null, null, null];
   const points = [];
 
   onMount(() => {
     canvas = document.getElementById("cropCanvas");
     ctx = canvas.getContext("2d");
+    outlineImg = new Image();
+    outlineImg.src = '/outline.png';
+    outlineImg.onload = () => {
+      drawOutline();
+    }
     setOffsets();
     document.addEventListener("scroll", setOffsets);
     window.addEventListener("resize", setOffsets);
   });
 
   function setOffsets() {
-    console.log("resize", "scroll");
     const canvasOffset = canvas.getBoundingClientRect();
     offsetX = canvasOffset.left;
     offsetY = canvasOffset.top;
   }
 
+  function drawOutline() {
+    ctx.drawImage(outlineImg,
+        canvas.width / 2 - outlineImg.width / 2,
+        canvas.height / 2 - outlineImg.height / 2)
+  }
+
   function onImageMouseMove(e) {
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
-    // console.log(canMouseX, canMouseY);
     if (isDragging) {
-      console.log(canMouseX, canMouseY);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       position = {
         x: imageOrigPos.x - (clickOrigPos.x - canMouseX),
         y: imageOrigPos.y - (clickOrigPos.y - canMouseY),
       };
-      console.log(position.x, position.y);
       ctx.drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
+      drawOutline();
     }
-    document.getElementById("posx").innerHTML = e.offsetX;
-    document.getElementById("posy").innerHTML = e.offsetY;
+    curPointX = e.offsetX;
+    curPointY = e.offsetY;
   }
 
   function onScroll(e) {
@@ -126,22 +136,18 @@
     //store the points on mousedown
     points.push(e.pageX, e.pageY);
 
-    ctx.globalCompositeOperation = "destination-out";
-    let oldposx = document.getElementById("oldposx").innerHTML;
-    let oldposy = document.getElementById("oldposy").innerHTML;
-    let posx = document.getElementById("posx").innerHTML;
-    let posy = document.getElementById("posy").innerHTML;
+    // ctx.globalCompositeOperation = "destination-out";
     ctx.beginPath();
-    ctx.moveTo(oldposx, oldposy);
-    if (oldposx != "") {
-      ctx.lineTo(posx, posy);
+    ctx.moveTo(prevPointX, prevPointY);
+    if (prevPointX && prevPointY) {
+      ctx.lineTo(curPointX, curPointY);
       ctx.stroke();
     }
-    document.getElementById("oldposx").innerHTML = e.offsetX;
-    document.getElementById("oldposy").innerHTML = e.offsetY;
+    prevPointX = e.offsetX;
+    prevPointY = e.offsetY;
     document.body.append(pointer);
-    document.getElementById("posx").innerHTML = e.offsetX;
-    document.getElementById("posy").innerHTML = e.offsetY;
+    curPointX = e.offsetX;
+    curPointY = e.offsetY;
   }
 
   function onFileSelected(e) {
@@ -166,8 +172,9 @@
           tempCanvas.toDataURL("image/jpeg"),
           canvas.width,
           canvas.height,
-          new Image()
+          true
         );
+        setOffsets();
       };
     };
   }
@@ -176,16 +183,19 @@
     imageSrc,
     width = newWidth,
     height = newHeight,
-    newImageObj
+    newImageObj = false,
+    shouldDrawOutline = true
   ) {
-    if (newImageObj) imageObj = newImageObj;
+    if (newImageObj) imageObj = new Image();
     imageObj.src = imageSrc;
     newWidth = width;
     newHeight = height;
     imageObj.onload = () => {
-      console.log("loaded");
+      console.log("loaded2");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(rawImageObj, position.x, position.y, width, height);
+      if (shouldDrawOutline) drawOutline();
+      setOffsets();
     };
   }
 
@@ -207,6 +217,9 @@
         tempCanvas.width = canvas.width;
         tempCanvas.height = canvas.height;
         const tempCtx = tempCanvas.getContext("2d");
+        console.log(rawImageObj, position.x, position.y, newWidth, newHeight);
+        canvas.getContext("2d").drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
+        ctx.globalCompositeOperation = "destination-out";
         tempCtx.drawImage(canvas, 0, 0);
     appliedImage.src = canvas.toDataURL("image/jpeg");
     let spots = document.getElementsByClassName("spot");
@@ -287,10 +300,6 @@
       on:mouseup={onImageMouseUp}
       on:mouseout={onImageMouseOut}
     />
-    <div id="oldposx" style="display:none;" />
-    <div id="oldposy" style="display:none;" />
-    <div id="posx" style="display:none;" />
-    <div id="posy" style="display:none;" />
   </div>
   <div class="mdl-card__supporting-text">INSTRUCTIONS HERE</div>
   <div class="mdl-card__actions mdl-card--border">
