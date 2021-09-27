@@ -10,7 +10,7 @@ ghpages.publish(
             email: 'kaceycleveland.mail@gmail.com' // Update to use your email
         }
     },
-    () => {
-        console.log('Deploy Complete!')
+    (e) => {
+        console.log('Deploy Complete!',e)
     }
 )
