@@ -5,6 +5,7 @@
   const ZOOM_INCREASE = 0.3;
   const ZOOM_DECREASE = 0.1;
   const INIT_WIDTH_CANVAS = 400;
+  const POINT_SIZE = 6;
 
   let fileinput;
 
@@ -16,7 +17,6 @@
     ctx,
     rawImageObj,
     imageObj,
-    outlineImg,
     zoomLevel = 1,
     canMouseX,
     canMouseY,
@@ -29,17 +29,12 @@
     newHeight,
     isDragging = false;
   let [prevPointX, prevPointY, curPointX, curPointY] = [null, null, null, null];
-  const points = [];
+  let points = [];
 
   onMount(() => {
     canvas = document.getElementById("cropCanvas");
     ctx = canvas.getContext("2d");
-    outlineImg = new Image();
-    outlineImg.src = 'static_images/outline.png';
-    outlineImg.onload = () => {
-      drawOutline();
-      console.log(outlineImg);
-    }
+    drawOutline();
     setOffsets();
     document.addEventListener("scroll", setOffsets);
     window.addEventListener("resize", setOffsets);
@@ -52,9 +47,19 @@
   }
 
   function drawOutline() {
-    ctx.drawImage(outlineImg,
-        canvas.width / 2 - outlineImg.width / 2,
-        canvas.height / 2 - outlineImg.height / 2)
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const rx = 45;
+    const ry = 55;
+    ctx.save();
+    ctx.beginPath();
+
+    ctx.translate(cx - rx, cy - ry);
+    ctx.scale(rx, ry);
+    ctx.arc(1, 1, 1, 0, 2 * Math.PI, false);
+
+    ctx.restore();
+    ctx.stroke();
   }
 
   function onImageMouseMove(e) {
@@ -125,15 +130,17 @@
     ctx.beginPath();
     console.log("adding pointer");
     const pointer = document.createElement("span");
-    pointer.style = {
-      ...pointer.style,
-      position: "absolute",
-      backgroundColor: "#000000",
-      width: "5px",
-      height: "5px",
-      top: e.pageY,
-      left: e.pageX,
-    };
+    pointer.className = "canvas-point";
+    pointer.style.cssText = `
+      position: absolute;
+      background-color: rgb(63,81,181);
+      width: ${POINT_SIZE}px;
+      height: ${POINT_SIZE}px;
+      top: ${e.pageY - POINT_SIZE/2}px;
+      left: ${e.pageX - POINT_SIZE/2}px;
+      z-index: 1;
+    `;
+    console.log(pointer);
     //store the points on mousedown
     points.push(e.pageX, e.pageY);
 
@@ -144,9 +151,10 @@
       ctx.lineTo(curPointX, curPointY);
       ctx.stroke();
     }
+    
+    document.body.append(pointer);
     prevPointX = e.offsetX;
     prevPointY = e.offsetY;
-    document.body.append(pointer);
     curPointX = e.offsetX;
     curPointY = e.offsetY;
   }
@@ -214,16 +222,18 @@
 
   function cropImage() {
     const appliedImage = new Image();
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-        const tempCtx = tempCanvas.getContext("2d");
-        console.log(rawImageObj, position.x, position.y, newWidth, newHeight);
-        canvas.getContext("2d").drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
-        ctx.globalCompositeOperation = "destination-out";
-        tempCtx.drawImage(canvas, 0, 0);
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+    console.log(rawImageObj, position.x, position.y, newWidth, newHeight);
+    canvas
+      .getContext("2d")
+      .drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
+    ctx.globalCompositeOperation = "destination-out";
+    tempCtx.drawImage(canvas, 0, 0);
     appliedImage.src = canvas.toDataURL("image/jpeg");
-    let spots = document.getElementsByClassName("spot");
+    let spots = document.getElementsByClassName("canvas-point");
 
     while (spots[0]) spots[0].parentNode.removeChild(spots[0]);
     //clear canvas
@@ -257,6 +267,11 @@
       else tempCtx.lineTo(x - offset.left, y - offset.top);
       //console.log(points[i],points[i+1])
     }
+    points = [];
+    // const pointsToRemove = document.body.getElementsByClassName('canvas-point');
+    // for (const point of pointsToRemove) {
+    //   point.remove();
+    // }
     console.log(imageObj);
     appliedImage.onload = () => {
       let pattern = tempCtx.createPattern(appliedImage, "repeat");
@@ -285,7 +300,6 @@
 </script>
 
 <div class="image-import-container mdl-card mdl-shadow--2dp">
-      
   <div class="mdl-card__title">
     <h2 class="mdl-card__title-text">1. Crop</h2>
   </div>
