@@ -835,32 +835,32 @@ var app = (function () {
     			t8 = space();
     			input = element("input");
     			attr_dev(h2, "class", "mdl-card__title-text");
-    			add_location(h2, file$4, 289, 4, 8789);
+    			add_location(h2, file$4, 303, 4, 9114);
     			attr_dev(div0, "class", "mdl-card__title svelte-1k9lwuc");
-    			add_location(div0, file$4, 288, 2, 8754);
+    			add_location(div0, file$4, 302, 2, 9079);
     			attr_dev(canvas_1, "id", "cropCanvas");
     			attr_dev(canvas_1, "width", INIT_WIDTH_CANVAS);
     			attr_dev(canvas_1, "height", INIT_WIDTH_CANVAS);
     			attr_dev(canvas_1, "class", "svelte-1k9lwuc");
-    			add_location(canvas_1, file$4, 292, 4, 8859);
-    			add_location(div1, file$4, 291, 2, 8848);
+    			add_location(canvas_1, file$4, 306, 4, 9184);
+    			add_location(div1, file$4, 305, 2, 9173);
     			attr_dev(div2, "class", "mdl-card__supporting-text");
-    			add_location(div2, file$4, 304, 2, 9197);
+    			add_location(div2, file$4, 318, 2, 9522);
     			attr_dev(button0, "class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored");
     			attr_dev(button0, "id", "import");
-    			add_location(button0, file$4, 306, 4, 9317);
+    			add_location(button0, file$4, 320, 4, 9642);
     			attr_dev(button1, "class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored");
     			attr_dev(button1, "role", "button");
     			attr_dev(button1, "id", "crop");
-    			add_location(button1, file$4, 313, 4, 9533);
+    			add_location(button1, file$4, 327, 4, 9858);
     			set_style(input, "display", "none");
     			attr_dev(input, "type", "file");
     			attr_dev(input, "accept", ".jpg, .jpeg, .png");
-    			add_location(input, file$4, 323, 4, 9800);
+    			add_location(input, file$4, 337, 4, 10125);
     			attr_dev(div3, "class", "mdl-card__actions mdl-card--border");
-    			add_location(div3, file$4, 305, 2, 9263);
+    			add_location(div3, file$4, 319, 2, 9588);
     			attr_dev(div4, "class", "image-import-container mdl-card mdl-shadow--2dp svelte-1k9lwuc");
-    			add_location(div4, file$4, 286, 0, 8681);
+    			add_location(div4, file$4, 301, 0, 9014);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -924,6 +924,7 @@ var app = (function () {
     const ZOOM_INCREASE = 0.3;
     const ZOOM_DECREASE = 0.1;
     const INIT_WIDTH_CANVAS = 400;
+    const POINT_SIZE = 6;
 
     function checkScrollDirectionIsUp(event) {
     	if (event.wheelDelta) {
@@ -945,7 +946,6 @@ var app = (function () {
     		ctx,
     		rawImageObj,
     		imageObj,
-    		outlineImg,
     		zoomLevel = 1,
     		canMouseX,
     		canMouseY,
@@ -959,19 +959,12 @@ var app = (function () {
     		isDragging = false;
 
     	let [prevPointX, prevPointY, curPointX, curPointY] = [null, null, null, null];
-    	const points = [];
+    	let points = [];
 
     	onMount(() => {
     		canvas = document.getElementById("cropCanvas");
     		ctx = canvas.getContext("2d");
-    		outlineImg = new Image();
-    		outlineImg.src = "static_images/outline.png";
-
-    		outlineImg.onload = () => {
-    			drawOutline();
-    			console.log(outlineImg);
-    		};
-
+    		drawOutline();
     		setOffsets();
     		document.addEventListener("scroll", setOffsets);
     		window.addEventListener("resize", setOffsets);
@@ -984,7 +977,17 @@ var app = (function () {
     	}
 
     	function drawOutline() {
-    		ctx.drawImage(outlineImg, canvas.width / 2 - outlineImg.width / 2, canvas.height / 2 - outlineImg.height / 2);
+    		const cx = canvas.width / 2;
+    		const cy = canvas.height / 2;
+    		const rx = 45;
+    		const ry = 55;
+    		ctx.save();
+    		ctx.beginPath();
+    		ctx.translate(cx - rx, cy - ry);
+    		ctx.scale(rx, ry);
+    		ctx.arc(1, 1, 1, 0, 2 * Math.PI, false);
+    		ctx.restore();
+    		ctx.stroke();
     	}
 
     	function onImageMouseMove(e) {
@@ -1044,16 +1047,19 @@ var app = (function () {
     		ctx.beginPath();
     		console.log("adding pointer");
     		const pointer = document.createElement("span");
+    		pointer.className = "canvas-point";
 
-    		pointer.style = {
-    			...pointer.style,
-    			position: "absolute",
-    			backgroundColor: "#000000",
-    			width: "5px",
-    			height: "5px",
-    			top: e.pageY,
-    			left: e.pageX
-    		};
+    		pointer.style.cssText = `
+      position: absolute;
+      background-color: rgb(63,81,181);
+      width: ${POINT_SIZE}px;
+      height: ${POINT_SIZE}px;
+      top: ${e.pageY - POINT_SIZE / 2}px;
+      left: ${e.pageX - POINT_SIZE / 2}px;
+      z-index: 1;
+    `;
+
+    		console.log(pointer);
 
     		//store the points on mousedown
     		points.push(e.pageX, e.pageY);
@@ -1068,9 +1074,9 @@ var app = (function () {
     			ctx.stroke();
     		}
 
+    		document.body.append(pointer);
     		prevPointX = e.offsetX;
     		prevPointY = e.offsetY;
-    		document.body.append(pointer);
     		curPointX = e.offsetX;
     		curPointY = e.offsetY;
     	}
@@ -1141,7 +1147,7 @@ var app = (function () {
     		ctx.globalCompositeOperation = "destination-out";
     		tempCtx.drawImage(canvas, 0, 0);
     		appliedImage.src = canvas.toDataURL("image/jpeg");
-    		let spots = document.getElementsByClassName("spot");
+    		let spots = document.getElementsByClassName("canvas-point");
     		while (spots[0]) spots[0].parentNode.removeChild(spots[0]);
 
     		//clear canvas
@@ -1176,6 +1182,12 @@ var app = (function () {
     			if (i == 0) tempCtx.moveTo(x - offset.left, y - offset.top); else tempCtx.lineTo(x - offset.left, y - offset.top);
     		} //console.log(points[i],points[i+1])
 
+    		points = [];
+
+    		// const pointsToRemove = document.body.getElementsByClassName('canvas-point');
+    		// for (const point of pointsToRemove) {
+    		//   point.remove();
+    		// }
     		console.log(imageObj);
 
     		appliedImage.onload = () => {
@@ -1227,6 +1239,7 @@ var app = (function () {
     		ZOOM_INCREASE,
     		ZOOM_DECREASE,
     		INIT_WIDTH_CANVAS,
+    		POINT_SIZE,
     		fileinput,
     		croppedImage,
     		step,
@@ -1235,7 +1248,6 @@ var app = (function () {
     		ctx,
     		rawImageObj,
     		imageObj,
-    		outlineImg,
     		zoomLevel,
     		canMouseX,
     		canMouseY,
@@ -1276,7 +1288,6 @@ var app = (function () {
     		if ("ctx" in $$props) ctx = $$props.ctx;
     		if ("rawImageObj" in $$props) rawImageObj = $$props.rawImageObj;
     		if ("imageObj" in $$props) imageObj = $$props.imageObj;
-    		if ("outlineImg" in $$props) outlineImg = $$props.outlineImg;
     		if ("zoomLevel" in $$props) zoomLevel = $$props.zoomLevel;
     		if ("canMouseX" in $$props) canMouseX = $$props.canMouseX;
     		if ("canMouseY" in $$props) canMouseY = $$props.canMouseY;
@@ -1292,6 +1303,7 @@ var app = (function () {
     		if ("prevPointY" in $$props) prevPointY = $$props.prevPointY;
     		if ("curPointX" in $$props) curPointX = $$props.curPointX;
     		if ("curPointY" in $$props) curPointY = $$props.curPointY;
+    		if ("points" in $$props) points = $$props.points;
     	};
 
     	if ($$props && "$$inject" in $$props) {
