@@ -1,11 +1,11 @@
 <script>
-  import { cropImageDimensions, getOffset } from "./crop";
+  import { cropImageDimensions } from "./crop";
   import { onMount } from "svelte";
 
-  const ZOOM_INCREASE = 0.3;
-  const ZOOM_DECREASE = 0.1;
+  const ZOOM_INCREASE = 0.2;
+  const ZOOM_DECREASE = 0.05;
   const INIT_WIDTH_CANVAS = 400;
-  const POINT_SIZE = 6;
+  const POINT_SIZE = 4;
 
   let fileinput;
 
@@ -28,7 +28,6 @@
     newWidth,
     newHeight,
     isDragging = false;
-  let [prevPointX, prevPointY, curPointX, curPointY] = [null, null, null, null];
   let points = [];
 
   onMount(() => {
@@ -136,13 +135,11 @@
     drawFullPointPath();
   }
 
-
-  const pointSize = 4;
   function drawPoint(point) {
     ctx.fillStyle = "rgb(63,81,181)";
     ctx.beginPath();
     console.log(point.x, point.y);
-    ctx.arc(point.x, point.y, pointSize, 0, 2 * Math.PI);
+    ctx.arc(point.x, point.y, POINT_SIZE, 0, 2 * Math.PI);
     ctx.fill();
   }
 

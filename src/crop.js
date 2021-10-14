@@ -26,11 +26,3 @@ export function cropImageDimensions(image, left, top, width, height, cb) {
     croppedImageObj.onload = () => cb(croppedImageObj);
   };
 }
-
-export function getOffset(el) {
-  const rect = el.getBoundingClientRect();
-  return {
-    left: rect.left + window.scrollX,
-    top: rect.top + window.scrollY,
-  };
-}

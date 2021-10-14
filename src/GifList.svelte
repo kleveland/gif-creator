@@ -44,11 +44,7 @@
     </li>
   {/each}
 </ul>
-
-<div class="mdl-card__actions mdl-card--border">
-    <Button id="continue" onClick={submitGif} buttonText="Continue" /></div>
 </div>
-
 <style>
 .gif-list-container {
     width: 100%;
