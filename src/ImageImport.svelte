@@ -127,36 +127,49 @@
 
   function onImageRightClick(e) {
     e.preventDefault();
-    ctx.beginPath();
     console.log("adding pointer");
-    const pointer = document.createElement("span");
-    pointer.className = "canvas-point";
-    pointer.style.cssText = `
-      position: absolute;
-      background-color: rgb(63,81,181);
-      width: ${POINT_SIZE}px;
-      height: ${POINT_SIZE}px;
-      top: ${e.pageY - POINT_SIZE/2}px;
-      left: ${e.pageX - POINT_SIZE/2}px;
-      z-index: 1;
-    `;
-    console.log(pointer);
-    //store the points on mousedown
-    points.push(e.pageX, e.pageY);
 
-    // ctx.globalCompositeOperation = "destination-out";
+    //store the points on mousedown
+    const point = { x: e.offsetX, y: e.offsetY };
+    points.push(point);
+
+    drawFullPointPath();
+  }
+
+
+  const pointSize = 4;
+  function drawPoint(point) {
+    ctx.fillStyle = "rgb(63,81,181)";
     ctx.beginPath();
-    ctx.moveTo(prevPointX, prevPointY);
-    if (prevPointX && prevPointY) {
-      ctx.lineTo(curPointX, curPointY);
-      ctx.stroke();
+    console.log(point.x, point.y);
+    ctx.arc(point.x, point.y, pointSize, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  const pathWeight = 1.5;
+  function drawPath(firstPoint, secondPoint) {
+    console.log("drawPath", firstPoint, secondPoint);
+    ctx.lineWidth = pathWeight;
+    ctx.beginPath();
+    ctx.moveTo(firstPoint.x, firstPoint.y);
+    ctx.lineTo(secondPoint.x, secondPoint.y);
+    ctx.stroke();
+  }
+
+  function drawFullPointPath() {
+    console.log(points);
+    for (let i = 1; i < points.length; i++) {
+      const prevPoint = points[i - 1];
+      const currentPoint = points[i];
+      drawPath(prevPoint, currentPoint);
     }
-    
-    document.body.append(pointer);
-    prevPointX = e.offsetX;
-    prevPointY = e.offsetY;
-    curPointX = e.offsetX;
-    curPointY = e.offsetY;
+    console.log("drew paths");
+
+    for (let i = 0; i < points.length; i++) {
+      const currentPoint = points[i];
+      drawPoint(currentPoint);
+    }
+    console.log("drew points");
   }
 
   function onFileSelected(e) {
@@ -233,60 +246,39 @@
     ctx.globalCompositeOperation = "destination-out";
     tempCtx.drawImage(canvas, 0, 0);
     appliedImage.src = canvas.toDataURL("image/jpeg");
-    let spots = document.getElementsByClassName("canvas-point");
-
-    while (spots[0]) spots[0].parentNode.removeChild(spots[0]);
     //clear canvas
     tempCtx.clearRect(0, 0, canvas.width, canvas.height);
     tempCtx.beginPath();
     tempCtx.globalCompositeOperation = "destination-over";
-    //draw the polygon
-
-    const rect = document.querySelector("#cropCanvas").getBoundingClientRect();
-    const offset = {
-      top: rect.top + window.scrollY,
-      left: rect.left + window.scrollX,
-    };
-    //console.log(offset.left,offset.top);
 
     let leftMost = Number.MAX_SAFE_INTEGER; // higher then bounds of canvas
     let topMost = Number.MAX_SAFE_INTEGER; // higher then bounds of canvas
     let rightMost = 0;
     let bottomMost = 0;
-    for (let i = 0; i < points.length; i += 2) {
-      console.log(points[i]);
-      let x = parseInt(points[i]);
-      let y = parseInt(points[i + 1]);
+    for (let i = 0; i < points.length; i++) {
+      const {x, y} = points[i];
 
       if (x < leftMost) leftMost = x;
       if (y < topMost) topMost = y;
       if (x > rightMost) rightMost = x;
       if (y > bottomMost) bottomMost = y;
 
-      if (i == 0) tempCtx.moveTo(x - offset.left, y - offset.top);
-      else tempCtx.lineTo(x - offset.left, y - offset.top);
+      if (i == 0) tempCtx.moveTo(x, y);
+      else tempCtx.lineTo(x, y);
       //console.log(points[i],points[i+1])
     }
     points = [];
-    // const pointsToRemove = document.body.getElementsByClassName('canvas-point');
-    // for (const point of pointsToRemove) {
-    //   point.remove();
-    // }
-    console.log(imageObj);
+
     appliedImage.onload = () => {
       let pattern = tempCtx.createPattern(appliedImage, "repeat");
       tempCtx.fillStyle = pattern;
       tempCtx.fill();
 
       var dataurl = tempCanvas.toDataURL("image/png");
-
-      console.log(dataurl);
-      console.log(leftMost, topMost, rightMost, bottomMost);
-      const canvasCoords = getOffset(canvas);
       cropImageDimensions(
         dataurl,
-        leftMost - canvasCoords.left,
-        topMost - canvasCoords.top,
+        leftMost,
+        topMost,
         rightMost - leftMost,
         bottomMost - topMost,
         (img) => {
