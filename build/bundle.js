@@ -827,32 +827,32 @@ var app = (function () {
     			t8 = space();
     			input = element("input");
     			attr_dev(h2, "class", "mdl-card__title-text");
-    			add_location(h2, file$4, 292, 4, 8344);
+    			add_location(h2, file$4, 286, 4, 8218);
     			attr_dev(div0, "class", "mdl-card__title svelte-1k9lwuc");
-    			add_location(div0, file$4, 291, 2, 8309);
+    			add_location(div0, file$4, 285, 2, 8183);
     			attr_dev(canvas_1, "id", "cropCanvas");
     			attr_dev(canvas_1, "width", INIT_WIDTH_CANVAS);
     			attr_dev(canvas_1, "height", INIT_WIDTH_CANVAS);
     			attr_dev(canvas_1, "class", "svelte-1k9lwuc");
-    			add_location(canvas_1, file$4, 295, 4, 8414);
-    			add_location(div1, file$4, 294, 2, 8403);
+    			add_location(canvas_1, file$4, 289, 4, 8288);
+    			add_location(div1, file$4, 288, 2, 8277);
     			attr_dev(div2, "class", "mdl-card__supporting-text");
-    			add_location(div2, file$4, 307, 2, 8752);
+    			add_location(div2, file$4, 301, 2, 8626);
     			attr_dev(button0, "class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored");
     			attr_dev(button0, "id", "import");
-    			add_location(button0, file$4, 309, 4, 8872);
+    			add_location(button0, file$4, 303, 4, 8746);
     			attr_dev(button1, "class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored");
     			attr_dev(button1, "role", "button");
     			attr_dev(button1, "id", "crop");
-    			add_location(button1, file$4, 316, 4, 9088);
+    			add_location(button1, file$4, 310, 4, 8962);
     			set_style(input, "display", "none");
     			attr_dev(input, "type", "file");
     			attr_dev(input, "accept", ".jpg, .jpeg, .png");
-    			add_location(input, file$4, 326, 4, 9355);
+    			add_location(input, file$4, 320, 4, 9229);
     			attr_dev(div3, "class", "mdl-card__actions mdl-card--border");
-    			add_location(div3, file$4, 308, 2, 8818);
+    			add_location(div3, file$4, 302, 2, 8692);
     			attr_dev(div4, "class", "image-import-container mdl-card mdl-shadow--2dp svelte-1k9lwuc");
-    			add_location(div4, file$4, 290, 0, 8244);
+    			add_location(div4, file$4, 284, 0, 8118);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -873,7 +873,7 @@ var app = (function () {
     			append_dev(div3, button1);
     			append_dev(div3, t8);
     			append_dev(div3, input);
-    			/*input_binding*/ ctx[14](input);
+    			/*input_binding*/ ctx[13](input);
 
     			if (!mounted) {
     				dispose = [
@@ -883,8 +883,8 @@ var app = (function () {
     					listen_dev(canvas_1, "mousemove", /*onImageMouseMove*/ ctx[2], false, false, false),
     					listen_dev(canvas_1, "mouseup", /*onImageMouseUp*/ ctx[5], false, false, false),
     					listen_dev(canvas_1, "mouseout", /*onImageMouseOut*/ ctx[6], false, false, false),
-    					listen_dev(button0, "click", /*click_handler*/ ctx[12], false, false, false),
-    					listen_dev(button1, "click", /*click_handler_1*/ ctx[13], false, false, false),
+    					listen_dev(button0, "click", /*click_handler*/ ctx[11], false, false, false),
+    					listen_dev(button1, "click", /*click_handler_1*/ ctx[12], false, false, false),
     					listen_dev(input, "change", /*onFileSelected*/ ctx[8], false, false, false)
     				];
 
@@ -896,7 +896,7 @@ var app = (function () {
     		o: noop,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div4);
-    			/*input_binding*/ ctx[14](null);
+    			/*input_binding*/ ctx[13](null);
     			mounted = false;
     			run_all(dispose);
     		}
@@ -920,10 +920,7 @@ var app = (function () {
     const pathWeight = 1.5;
 
     function checkScrollDirectionIsUp(event) {
-    	if (event.wheelDelta) {
-    		return event.wheelDelta > 0;
-    	}
-
+    	if (event.wheelDelta) return event.wheelDelta > 0;
     	return event.deltaY < 0;
     }
 
@@ -933,7 +930,6 @@ var app = (function () {
     	let fileinput;
     	let { croppedImage } = $$props;
     	let { step } = $$props;
-    	let { nextStep } = $$props;
 
     	let canvas,
     		ctx,
@@ -997,14 +993,13 @@ var app = (function () {
     			ctx.drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
     			drawOutline();
     		}
-
-    		curPointX = e.offsetX;
-    		curPointY = e.offsetY;
     	}
 
     	function onScroll(e) {
     		e.preventDefault();
-    		if (checkScrollDirectionIsUp(e)) setZoom(zoomLevel + (zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE)); else setZoom(zoomLevel - (zoomLevel > 1 ? ZOOM_INCREASE : ZOOM_DECREASE));
+    		const zoomMagnitude = zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE;
+    		const zoomDelta = zoomMagnitude * (checkScrollDirectionIsUp(e) ? 1 : -1);
+    		setZoom(zoomLevel + zoomDelta);
     	}
 
     	function onImageMouseDown(e) {
@@ -1176,14 +1171,13 @@ var app = (function () {
     			var dataurl = tempCanvas.toDataURL("image/png");
 
     			cropImageDimensions(dataurl, leftMost, topMost, rightMost - leftMost, bottomMost - topMost, img => {
-    				$$invalidate(11, nextStep = 2);
     				$$invalidate(10, step = 2);
     				$$invalidate(0, croppedImage = img);
     			});
     		};
     	}
 
-    	const writable_props = ["croppedImage", "step", "nextStep"];
+    	const writable_props = ["croppedImage", "step"];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1$1.warn(`<ImageImport> was created with unknown prop '${key}'`);
@@ -1205,7 +1199,6 @@ var app = (function () {
     	$$self.$$set = $$props => {
     		if ("croppedImage" in $$props) $$invalidate(0, croppedImage = $$props.croppedImage);
     		if ("step" in $$props) $$invalidate(10, step = $$props.step);
-    		if ("nextStep" in $$props) $$invalidate(11, nextStep = $$props.nextStep);
     	};
 
     	$$self.$capture_state = () => ({
@@ -1218,7 +1211,6 @@ var app = (function () {
     		fileinput,
     		croppedImage,
     		step,
-    		nextStep,
     		canvas,
     		ctx,
     		rawImageObj,
@@ -1258,7 +1250,6 @@ var app = (function () {
     		if ("fileinput" in $$props) $$invalidate(1, fileinput = $$props.fileinput);
     		if ("croppedImage" in $$props) $$invalidate(0, croppedImage = $$props.croppedImage);
     		if ("step" in $$props) $$invalidate(10, step = $$props.step);
-    		if ("nextStep" in $$props) $$invalidate(11, nextStep = $$props.nextStep);
     		if ("canvas" in $$props) canvas = $$props.canvas;
     		if ("ctx" in $$props) ctx = $$props.ctx;
     		if ("rawImageObj" in $$props) rawImageObj = $$props.rawImageObj;
@@ -1293,7 +1284,6 @@ var app = (function () {
     		onFileSelected,
     		cropImage,
     		step,
-    		nextStep,
     		click_handler,
     		click_handler_1,
     		input_binding
@@ -1303,7 +1293,7 @@ var app = (function () {
     class ImageImport extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$4, create_fragment$4, safe_not_equal, { croppedImage: 0, step: 10, nextStep: 11 }, [-1, -1]);
+    		init(this, options, instance$4, create_fragment$4, safe_not_equal, { croppedImage: 0, step: 10 }, [-1, -1]);
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
@@ -1322,10 +1312,6 @@ var app = (function () {
     		if (/*step*/ ctx[10] === undefined && !("step" in props)) {
     			console_1$1.warn("<ImageImport> was created without expected prop 'step'");
     		}
-
-    		if (/*nextStep*/ ctx[11] === undefined && !("nextStep" in props)) {
-    			console_1$1.warn("<ImageImport> was created without expected prop 'nextStep'");
-    		}
     	}
 
     	get croppedImage() {
@@ -1343,75 +1329,205 @@ var app = (function () {
     	set step(value) {
     		throw new Error("<ImageImport>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
-
-    	get nextStep() {
-    		throw new Error("<ImageImport>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set nextStep(value) {
-    		throw new Error("<ImageImport>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
     }
 
     let partyParrot = {
       name: "Party Parrot",
       playSpeed: 70,
       positions: [
-      { x: 36.5, y: 10.5 },
-      { x: 26.5, y: 5.5 },
-      { x: 9.5, y: 10.5 },
-      { x: 2.5, y: 15.5 },
-      { x: -4.5, y: 20.5 },
-      { x: 4.5, y: 16.5 },
-      { x: 16.5, y: 20.5 },
-      { x: 28.5, y: 22.5 },
-      { x: 36.5, y: 17.5 },
-      { x: 42.5, y: 15.5 },
-    ],
-
+        {
+          x: 67.5,
+          y: 60.5,
+        },
+        {
+          x: 66.5,
+          y: 59.5,
+        },
+        {
+          x: 50.5,
+          y: 64.5,
+        },
+        {
+          x: 42.5,
+          y: 71.5,
+        },
+        {
+          x: 39.5,
+          y: 73.5,
+        },
+        {
+          x: 44.5,
+          y: 74.5,
+        },
+        {
+          x: 60.5,
+          y: 75.5,
+        },
+        {
+          x: 71.5,
+          y: 76.5,
+        },
+        {
+          x: 78.5,
+          y: 81.5,
+        },
+        {
+          x: 85.5,
+          y: 72.5,
+        },
+      ],
     };
 
     let partyBlob = {
       name: "Party Blob",
       playSpeed: 25,
       positions: [
-      { x: 30.5, y: -36.5 },
-      { x: 29.5, y: -32.5 },
-      { x: 29.5, y: -24.5 },
-      { x: 30.5, y: -20.5 },
-      { x: 30.5, y: -14.5 },
-      { x: 31.5, y: -6.5 },
-      { x: 32.5, y: 6.5 },
-      { x: 34.5, y: 16.5 },
-      { x: 29.5, y: 8.5 },
-      { x: 28.5, y: -2.5 },
-      { x: 30, y: -11 },
-      { x: 27, y: -17 },
-      { x: 27, y: -29 },
-      { x: 27, y: -33 },
-      { x: 27, y: -38 },
-      { x: 25, y: -45 },
-      { x: 27, y: -46 },
-      { x: 30, y: -50 },
-      { x: 29, y: -49 },
-      { x: 27, y: -43 },
-      { x: 27, y: -36 },
-      { x: 26, y: -21 },
-      { x: 25, y: -7 },
-      { x: 25, y: -6 },
-      { x: 23, y: 8 },
-      { x: 23, y: 18 },
-      { x: 21, y: 17 },
-      { x: 20, y: 8 },
-      { x: 23, y: -2 },
-      { x: 27, y: -11 },
-      { x: 27, y: -23 },
-      { x: 29, y: -28 },
-      { x: 31, y: -34 },
-      { x: 28, y: -41 },
-      { x: 30, y: -43 },
-      { x: 29, y: -43 }
-    ]};
+        {
+          x: 59.5,
+          y: 23.5,
+        },
+        {
+          x: 58.5,
+          y: 22.5,
+        },
+        {
+          x: 61.5,
+          y: 26.5,
+        },
+        {
+          x: 62.5,
+          y: 30.5,
+        },
+        {
+          x: 64.5,
+          y: 43.5,
+        },
+        {
+          x: 63.5,
+          y: 52.5,
+        },
+        {
+          x: 65.5,
+          y: 63.5,
+        },
+        {
+          x: 62.5,
+          y: 67.5,
+        },
+        {
+          x: 63.5,
+          y: 64.5,
+        },
+        {
+          x: 62.5,
+          y: 59.5,
+        },
+        {
+          x: 64,
+          y: 49,
+        },
+        {
+          x: 60,
+          y: 39,
+        },
+        {
+          x: 62,
+          y: 33,
+        },
+        {
+          x: 61,
+          y: 25,
+        },
+        {
+          x: 61,
+          y: 16,
+        },
+        {
+          x: 60,
+          y: 14,
+        },
+        {
+          x: 58,
+          y: 4,
+        },
+        {
+          x: 59,
+          y: -2,
+        },
+        {
+          x: 61,
+          y: -4,
+        },
+        {
+          x: 60,
+          y: 9,
+        },
+        {
+          x: 69,
+          y: 28,
+        },
+        {
+          x: 72,
+          y: 34,
+        },
+        {
+          x: 71,
+          y: 47,
+        },
+        {
+          x: 71,
+          y: 56,
+        },
+        {
+          x: 68,
+          y: 60,
+        },
+        {
+          x: 67,
+          y: 65,
+        },
+        {
+          x: 65,
+          y: 72,
+        },
+        {
+          x: 66,
+          y: 65,
+        },
+        {
+          x: 67,
+          y: 53,
+        },
+        {
+          x: 67,
+          y: 41,
+        },
+        {
+          x: 68,
+          y: 36,
+        },
+        {
+          x: 71,
+          y: 24,
+        },
+        {
+          x: 70,
+          y: 19,
+        },
+        {
+          x: 71,
+          y: 11,
+        },
+        {
+          x: 70,
+          y: 5,
+        },
+        {
+          x: 71,
+          y: 2,
+        },
+      ],
+    };
 
     var gifList = /*#__PURE__*/Object.freeze({
         __proto__: null,
@@ -1574,292 +1690,6 @@ var app = (function () {
     	}
     }
 
-    /* src\GifList.svelte generated by Svelte v3.38.3 */
-
-    const { Object: Object_1 } = globals;
-    const file$2 = "src\\GifList.svelte";
-
-    function get_each_context(ctx, list, i) {
-    	const child_ctx = ctx.slice();
-    	child_ctx[6] = list[i];
-    	child_ctx[8] = i;
-    	return child_ctx;
-    }
-
-    // (19:2) {#each gifListEntries as gif, i}
-    function create_each_block(ctx) {
-    	let li;
-    	let span0;
-    	let img;
-    	let img_src_value;
-    	let t0;
-    	let t1_value = /*gif*/ ctx[6][1].name + "";
-    	let t1;
-    	let t2;
-    	let span1;
-    	let label;
-    	let input;
-    	let t3;
-    	let mounted;
-    	let dispose;
-
-    	const block = {
-    		c: function create() {
-    			li = element("li");
-    			span0 = element("span");
-    			img = element("img");
-    			t0 = space();
-    			t1 = text(t1_value);
-    			t2 = space();
-    			span1 = element("span");
-    			label = element("label");
-    			input = element("input");
-    			t3 = space();
-    			attr_dev(img, "class", "gif-preview-image svelte-pfxx9r");
-    			if (img.src !== (img_src_value = `${/*gif*/ ctx[6][0]}/0.gif`)) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "alt", `${/*gif*/ ctx[6][0]}-preview`);
-    			add_location(img, file$2, 21, 8, 592);
-    			attr_dev(span0, "class", "mdl-list__item-primary-content");
-    			add_location(span0, file$2, 20, 6, 537);
-    			attr_dev(input, "type", "radio");
-    			attr_dev(input, "id", "gif-option-" + /*i*/ ctx[8]);
-    			attr_dev(input, "class", "mdl-radio__button");
-    			attr_dev(input, "name", "gifselect");
-    			input.__value = /*gif*/ ctx[6][0];
-    			input.value = input.__value;
-    			/*$$binding_groups*/ ctx[4][0].push(input);
-    			add_location(input, file$2, 33, 10, 959);
-    			attr_dev(label, "class", "demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect");
-    			attr_dev(label, "for", "gif-option-" + /*i*/ ctx[8]);
-    			add_location(label, file$2, 29, 8, 819);
-    			attr_dev(span1, "class", "mdl-list__item-secondary-action");
-    			add_location(span1, file$2, 28, 6, 763);
-    			attr_dev(li, "class", "mdl-list__item");
-    			add_location(li, file$2, 19, 4, 502);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, li, anchor);
-    			append_dev(li, span0);
-    			append_dev(span0, img);
-    			append_dev(span0, t0);
-    			append_dev(span0, t1);
-    			append_dev(li, t2);
-    			append_dev(li, span1);
-    			append_dev(span1, label);
-    			append_dev(label, input);
-    			input.checked = input.__value === /*selectedOption*/ ctx[0];
-    			append_dev(li, t3);
-
-    			if (!mounted) {
-    				dispose = listen_dev(input, "change", /*input_change_handler*/ ctx[3]);
-    				mounted = true;
-    			}
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*selectedOption*/ 1) {
-    				input.checked = input.__value === /*selectedOption*/ ctx[0];
-    			}
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(li);
-    			/*$$binding_groups*/ ctx[4][0].splice(/*$$binding_groups*/ ctx[4][0].indexOf(input), 1);
-    			mounted = false;
-    			dispose();
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_each_block.name,
-    		type: "each",
-    		source: "(19:2) {#each gifListEntries as gif, i}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    function create_fragment$2(ctx) {
-    	let div1;
-    	let div0;
-    	let h2;
-    	let t1;
-    	let ul;
-    	let each_value = /*gifListEntries*/ ctx[1];
-    	validate_each_argument(each_value);
-    	let each_blocks = [];
-
-    	for (let i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
-    	}
-
-    	const block = {
-    		c: function create() {
-    			div1 = element("div");
-    			div0 = element("div");
-    			h2 = element("h2");
-    			h2.textContent = "2. Pick";
-    			t1 = space();
-    			ul = element("ul");
-
-    			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].c();
-    			}
-
-    			attr_dev(h2, "class", "mdl-card__title-text");
-    			add_location(h2, file$2, 15, 8, 378);
-    			attr_dev(div0, "class", "mdl-card__title svelte-pfxx9r");
-    			add_location(div0, file$2, 14, 4, 339);
-    			attr_dev(ul, "class", "mdl-list");
-    			add_location(ul, file$2, 17, 0, 439);
-    			attr_dev(div1, "class", "gif-list-container mdl-card mdl-shadow--2dp svelte-pfxx9r");
-    			add_location(div1, file$2, 12, 0, 270);
-    		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div1, anchor);
-    			append_dev(div1, div0);
-    			append_dev(div0, h2);
-    			append_dev(div1, t1);
-    			append_dev(div1, ul);
-
-    			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(ul, null);
-    			}
-    		},
-    		p: function update(ctx, [dirty]) {
-    			if (dirty & /*gifListEntries, selectedOption*/ 3) {
-    				each_value = /*gifListEntries*/ ctx[1];
-    				validate_each_argument(each_value);
-    				let i;
-
-    				for (i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context(ctx, each_value, i);
-
-    					if (each_blocks[i]) {
-    						each_blocks[i].p(child_ctx, dirty);
-    					} else {
-    						each_blocks[i] = create_each_block(child_ctx);
-    						each_blocks[i].c();
-    						each_blocks[i].m(ul, null);
-    					}
-    				}
-
-    				for (; i < each_blocks.length; i += 1) {
-    					each_blocks[i].d(1);
-    				}
-
-    				each_blocks.length = each_value.length;
-    			}
-    		},
-    		i: noop,
-    		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div1);
-    			destroy_each(each_blocks, detaching);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment$2.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    function instance$2($$self, $$props, $$invalidate) {
-    	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("GifList", slots, []);
-    	const gifListEntries = Object.entries(gifList);
-    	let { selectedOption = "partyParrot" } = $$props;
-    	let { step } = $$props;
-
-    	function submitGif() {
-    		$$invalidate(2, step = 2);
-    	}
-
-    	const writable_props = ["selectedOption", "step"];
-
-    	Object_1.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<GifList> was created with unknown prop '${key}'`);
-    	});
-
-    	const $$binding_groups = [[]];
-
-    	function input_change_handler() {
-    		selectedOption = this.__value;
-    		$$invalidate(0, selectedOption);
-    	}
-
-    	$$self.$$set = $$props => {
-    		if ("selectedOption" in $$props) $$invalidate(0, selectedOption = $$props.selectedOption);
-    		if ("step" in $$props) $$invalidate(2, step = $$props.step);
-    	};
-
-    	$$self.$capture_state = () => ({
-    		gifList,
-    		Button,
-    		gifListEntries,
-    		selectedOption,
-    		step,
-    		submitGif
-    	});
-
-    	$$self.$inject_state = $$props => {
-    		if ("selectedOption" in $$props) $$invalidate(0, selectedOption = $$props.selectedOption);
-    		if ("step" in $$props) $$invalidate(2, step = $$props.step);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
-
-    	return [selectedOption, gifListEntries, step, input_change_handler, $$binding_groups];
-    }
-
-    class GifList extends SvelteComponentDev {
-    	constructor(options) {
-    		super(options);
-    		init(this, options, instance$2, create_fragment$2, safe_not_equal, { selectedOption: 0, step: 2 });
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "GifList",
-    			options,
-    			id: create_fragment$2.name
-    		});
-
-    		const { ctx } = this.$$;
-    		const props = options.props || {};
-
-    		if (/*step*/ ctx[2] === undefined && !("step" in props)) {
-    			console.warn("<GifList> was created without expected prop 'step'");
-    		}
-    	}
-
-    	get selectedOption() {
-    		throw new Error("<GifList>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set selectedOption(value) {
-    		throw new Error("<GifList>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get step() {
-    		throw new Error("<GifList>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set step(value) {
-    		throw new Error("<GifList>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-    }
-
     function createCommonjsModule(fn) {
       var module = { exports: {} };
     	return fn(module, module.exports), module.exports;
@@ -1878,9 +1708,9 @@ var app = (function () {
     /* src\CustomizeCanvas.svelte generated by Svelte v3.38.3 */
 
     const { console: console_1 } = globals;
-    const file$1 = "src\\CustomizeCanvas.svelte";
+    const file$2 = "src\\CustomizeCanvas.svelte";
 
-    // (283:8) {:else}
+    // (268:8) {:else}
     function create_else_block(ctx) {
     	let i;
 
@@ -1889,7 +1719,7 @@ var app = (function () {
     			i = element("i");
     			i.textContent = "pause";
     			attr_dev(i, "class", "material-icons");
-    			add_location(i, file$1, 283, 10, 8607);
+    			add_location(i, file$2, 268, 10, 8152);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, i, anchor);
@@ -1903,14 +1733,14 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(283:8) {:else}",
+    		source: "(268:8) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (281:8) {#if !playInterval}
+    // (266:8) {#if !playInterval}
     function create_if_block$1(ctx) {
     	let i;
 
@@ -1919,7 +1749,7 @@ var app = (function () {
     			i = element("i");
     			i.textContent = "play_arrow";
     			attr_dev(i, "class", "material-icons");
-    			add_location(i, file$1, 281, 10, 8538);
+    			add_location(i, file$2, 266, 10, 8083);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, i, anchor);
@@ -1933,14 +1763,14 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(281:8) {#if !playInterval}",
+    		source: "(266:8) {#if !playInterval}",
     		ctx
     	});
 
     	return block;
     }
 
-    function create_fragment$1(ctx) {
+    function create_fragment$2(ctx) {
     	let div4;
     	let div0;
     	let h2;
@@ -2034,39 +1864,39 @@ var app = (function () {
     			t13 = space();
     			create_component(button4.$$.fragment);
     			attr_dev(h2, "class", "mdl-card__title-text");
-    			add_location(h2, file$1, 255, 6, 7624);
-    			attr_dev(div0, "class", "mdl-card__title svelte-11wlo1z");
-    			add_location(div0, file$1, 254, 4, 7587);
+    			add_location(h2, file$2, 240, 4, 7171);
+    			attr_dev(div0, "class", "mdl-card__title svelte-no1o5j");
+    			add_location(div0, file$2, 239, 2, 7136);
     			attr_dev(canvas_1, "id", "gifCanvas");
-    			attr_dev(canvas_1, "class", "gif-canvas svelte-11wlo1z");
+    			attr_dev(canvas_1, "class", "gif-canvas svelte-no1o5j");
     			attr_dev(canvas_1, "width", "128");
     			attr_dev(canvas_1, "height", "128");
-    			add_location(canvas_1, file$1, 258, 4, 7730);
-    			attr_dev(span0, "class", "gif-canvas-container svelte-11wlo1z");
-    			add_location(span0, file$1, 257, 2, 7689);
+    			add_location(canvas_1, file$2, 243, 4, 7275);
+    			attr_dev(span0, "class", "gif-canvas-container svelte-no1o5j");
+    			add_location(span0, file$2, 242, 2, 7234);
     			attr_dev(i0, "class", "material-icons");
-    			add_location(i0, file$1, 275, 6, 8252);
-    			attr_dev(button0, "class", "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--2mini-fab svelte-11wlo1z");
-    			add_location(button0, file$1, 271, 4, 8082);
+    			add_location(i0, file$2, 260, 6, 7797);
+    			attr_dev(button0, "class", "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--2mini-fab svelte-no1o5j");
+    			add_location(button0, file$2, 256, 4, 7627);
     			attr_dev(span1, "class", "mdl-chip__text");
-    			add_location(span1, file$1, 278, 6, 8360);
+    			add_location(span1, file$2, 263, 6, 7905);
     			attr_dev(button1, "type", "button");
     			attr_dev(button1, "class", "mdl-chip__action");
-    			add_location(button1, file$1, 279, 6, 8426);
+    			add_location(button1, file$2, 264, 6, 7971);
     			attr_dev(span2, "class", "mdl-chip mdl-chip--deletable");
-    			add_location(span2, file$1, 277, 4, 8309);
+    			add_location(span2, file$2, 262, 4, 7854);
     			attr_dev(i1, "class", "material-icons");
-    			add_location(i1, file$1, 291, 6, 8863);
-    			attr_dev(button2, "class", "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--2mini-fab svelte-11wlo1z");
-    			add_location(button2, file$1, 287, 4, 8693);
-    			attr_dev(div1, "class", "frame-count-container svelte-11wlo1z");
-    			add_location(div1, file$1, 270, 2, 8041);
+    			add_location(i1, file$2, 276, 6, 8408);
+    			attr_dev(button2, "class", "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--2mini-fab svelte-no1o5j");
+    			add_location(button2, file$2, 272, 4, 8238);
+    			attr_dev(div1, "class", "frame-count-container svelte-no1o5j");
+    			add_location(div1, file$2, 255, 2, 7586);
     			attr_dev(div2, "class", "mdl-card__supporting-text");
-    			add_location(div2, file$1, 294, 2, 8925);
+    			add_location(div2, file$2, 279, 2, 8470);
     			attr_dev(div3, "class", "mdl-card__actions mdl-card--border");
-    			add_location(div3, file$1, 295, 2, 8991);
-    			attr_dev(div4, "class", "customize-canvas-container mdl-card mdl-shadow--2dp svelte-11wlo1z");
-    			add_location(div4, file$1, 253, 0, 7516);
+    			add_location(div3, file$2, 280, 2, 8536);
+    			attr_dev(div4, "class", "customize-canvas-container mdl-card mdl-shadow--2dp svelte-no1o5j");
+    			add_location(div4, file$2, 238, 0, 7067);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -2153,7 +1983,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$1.name,
+    		id: create_fragment$2.name,
     		type: "component",
     		source: "",
     		ctx
@@ -2162,7 +1992,15 @@ var app = (function () {
     	return block;
     }
 
-    function instance$1($$self, $$props, $$invalidate) {
+    function getCenterCoords(origPos, image) {
+    	const posX = origPos?.x ?? 0;
+    	const posY = origPos?.y ?? 0;
+    	const centerOffsetX = image.width / 2;
+    	const centerOffsetY = image.height / 2;
+    	return [posX - centerOffsetX, posY - centerOffsetY, posX, posY];
+    }
+
+    function instance$2($$self, $$props, $$invalidate) {
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots("CustomizeCanvas", slots, []);
     	let frameCount = 0;
@@ -2183,14 +2021,11 @@ var app = (function () {
     	let arr;
 
     	let canvasOffset,
-    		canvasWidth,
     		offsetX,
     		offsetY,
     		canMouseX,
     		canMouseY,
-    		canvasHeight,
     		isDragging = false,
-    		canDrag = true,
     		position = { x: 0, y: 0 },
     		imageOrigPos = { ...position },
     		clickOrigPos,
@@ -2201,8 +2036,6 @@ var app = (function () {
     	onMount(() => {
     		canvas = document.getElementById("gifCanvas");
     		ctx = canvas.getContext("2d");
-    		canvasWidth = canvas.width;
-    		canvasHeight = canvas.height;
     		setOffsets();
     		document.addEventListener("scroll", setOffsets);
     		window.addEventListener("resize", setOffsets);
@@ -2284,8 +2117,6 @@ var app = (function () {
     	function drawOverlayImage(frameCount, overrideCtx) {
     		if (faceImage) {
     			const targetCtx = overrideCtx ?? ctx;
-    			const midX = faceImage.width / 4;
-    			const midY = faceImage.height / 4;
 
     			const posX = (positionsArr[frameCount]?.x)
     			? positionsArr[frameCount].x
@@ -2295,9 +2126,8 @@ var app = (function () {
     			? positionsArr[frameCount].y
     			: 0;
 
-    			console.log(midX, midY);
     			console.log(positionsArr, frameCount);
-    			targetCtx.drawImage(faceImage, posX, posY, faceImage.width, faceImage.height);
+    			targetCtx.drawImage(faceImage, posX - faceImage.width / 2, posY - faceImage.height / 2, faceImage.width, faceImage.height);
     		}
     	}
 
@@ -2320,41 +2150,38 @@ var app = (function () {
     	}
 
     	function handleImageMouseDown(e) {
-    		const posX = (positionsArr[frameCount]?.x)
-    		? positionsArr[frameCount].x
-    		: 0;
-
-    		const posY = (positionsArr[frameCount]?.y)
-    		? positionsArr[frameCount].y
-    		: 0;
+    		canMouseX = parseInt(e.offsetX);
+    		canMouseY = parseInt(e.offsetY);
+    		const [posX, posY, actualPosX, actualPosY] = getCenterCoords(positionsArr[frameCount], faceImage);
+    		console.log(canMouseX, canMouseY, posX, posY);
 
     		if (e.button === 0 && canMouseX > posX && canMouseY > posY && canMouseX < posX + faceImage.width && canMouseY < posY + faceImage.height) {
     			clickOrigPos = { x: canMouseX, y: canMouseY };
-    			imageOrigPos = { x: posX, y: posY };
+    			imageOrigPos = { x: actualPosX, y: actualPosY };
     			console.log("orig pos", clickOrigPos);
     			isDragging = true;
     		}
     	}
 
     	function handleImageMouseUp(e) {
-    		canMouseX = parseInt(e.clientX - offsetX);
-    		canMouseY = parseInt(e.clientY - offsetY);
+    		canMouseX = parseInt(e.offsetX);
+    		canMouseY = parseInt(e.offsetY);
 
     		// clear the drag flag
     		isDragging = false;
     	}
 
     	function handleImageMouseOut(e) {
-    		canMouseX = parseInt(e.clientX - offsetX);
-    		canMouseY = parseInt(e.clientY - offsetY);
+    		canMouseX = parseInt(e.offsetX);
+    		canMouseY = parseInt(e.offsetY);
 
     		// user has left the canvas, so clear the drag flag
     		isDragging = false;
     	}
 
     	function handleImageMouseMove(e) {
-    		canMouseX = parseInt(e.clientX - offsetX);
-    		canMouseY = parseInt(e.clientY - offsetY);
+    		canMouseX = parseInt(e.offsetX);
+    		canMouseY = parseInt(e.offsetY);
 
     		// if the drag flag is set, clear the canvas and draw the image
     		if (isDragging) {
@@ -2375,18 +2202,6 @@ var app = (function () {
     		drawOverlayImage(frame);
     	}
 
-    	//   function handleGifChange(event) {
-    	//       console.log(event.target.value);
-    	//       imageSelection = event.target.value;
-    	//       extractGif(imageSelection).then((imgArr) => {
-    	//           console.log(imgArr);
-    	//         loadedSelection = imageSelection;
-    	//         positionsArr = [...gifList[imageSelection].positions];
-    	//         imagePlayRate = gifList[imageSelection].playSpeed;
-    	//         arr = imgArr;
-    	//         setFrame(0);
-    	//       });
-    	//   }
     	function generateGif() {
     		const gif$1 = new gif({
     				workers: 2,
@@ -2445,7 +2260,6 @@ var app = (function () {
     		onMount,
     		afterUpdate,
     		gifList,
-    		GifList,
     		Button,
     		GIF: gif,
     		frameCount,
@@ -2462,14 +2276,11 @@ var app = (function () {
     		positionsArr,
     		arr,
     		canvasOffset,
-    		canvasWidth,
     		offsetX,
     		offsetY,
     		canMouseX,
     		canMouseY,
-    		canvasHeight,
     		isDragging,
-    		canDrag,
     		position,
     		imageOrigPos,
     		clickOrigPos,
@@ -2488,6 +2299,7 @@ var app = (function () {
     		handleImageMouseOut,
     		handleImageMouseMove,
     		drawFrame,
+    		getCenterCoords,
     		generateGif
     	});
 
@@ -2505,14 +2317,11 @@ var app = (function () {
     		if ("positionsArr" in $$props) positionsArr = $$props.positionsArr;
     		if ("arr" in $$props) arr = $$props.arr;
     		if ("canvasOffset" in $$props) canvasOffset = $$props.canvasOffset;
-    		if ("canvasWidth" in $$props) canvasWidth = $$props.canvasWidth;
     		if ("offsetX" in $$props) offsetX = $$props.offsetX;
     		if ("offsetY" in $$props) offsetY = $$props.offsetY;
     		if ("canMouseX" in $$props) canMouseX = $$props.canMouseX;
     		if ("canMouseY" in $$props) canMouseY = $$props.canMouseY;
-    		if ("canvasHeight" in $$props) canvasHeight = $$props.canvasHeight;
     		if ("isDragging" in $$props) isDragging = $$props.isDragging;
-    		if ("canDrag" in $$props) canDrag = $$props.canDrag;
     		if ("position" in $$props) position = $$props.position;
     		if ("imageOrigPos" in $$props) imageOrigPos = $$props.imageOrigPos;
     		if ("clickOrigPos" in $$props) clickOrigPos = $$props.clickOrigPos;
@@ -2550,8 +2359,8 @@ var app = (function () {
     		init(
     			this,
     			options,
-    			instance$1,
-    			create_fragment$1,
+    			instance$2,
+    			create_fragment$2,
     			safe_not_equal,
     			{
     				croppedImage: 12,
@@ -2565,7 +2374,7 @@ var app = (function () {
     			component: this,
     			tagName: "CustomizeCanvas",
     			options,
-    			id: create_fragment$1.name
+    			id: create_fragment$2.name
     		});
 
     		const { ctx } = this.$$;
@@ -2605,6 +2414,292 @@ var app = (function () {
     	}
     }
 
+    /* src\GifList.svelte generated by Svelte v3.38.3 */
+
+    const { Object: Object_1 } = globals;
+    const file$1 = "src\\GifList.svelte";
+
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[6] = list[i];
+    	child_ctx[8] = i;
+    	return child_ctx;
+    }
+
+    // (19:2) {#each gifListEntries as gif, i}
+    function create_each_block(ctx) {
+    	let li;
+    	let span0;
+    	let img;
+    	let img_src_value;
+    	let t0;
+    	let t1_value = /*gif*/ ctx[6][1].name + "";
+    	let t1;
+    	let t2;
+    	let span1;
+    	let label;
+    	let input;
+    	let t3;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			li = element("li");
+    			span0 = element("span");
+    			img = element("img");
+    			t0 = space();
+    			t1 = text(t1_value);
+    			t2 = space();
+    			span1 = element("span");
+    			label = element("label");
+    			input = element("input");
+    			t3 = space();
+    			attr_dev(img, "class", "gif-preview-image svelte-pfxx9r");
+    			if (img.src !== (img_src_value = `${/*gif*/ ctx[6][0]}/0.gif`)) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", `${/*gif*/ ctx[6][0]}-preview`);
+    			add_location(img, file$1, 21, 8, 592);
+    			attr_dev(span0, "class", "mdl-list__item-primary-content");
+    			add_location(span0, file$1, 20, 6, 537);
+    			attr_dev(input, "type", "radio");
+    			attr_dev(input, "id", "gif-option-" + /*i*/ ctx[8]);
+    			attr_dev(input, "class", "mdl-radio__button");
+    			attr_dev(input, "name", "gifselect");
+    			input.__value = /*gif*/ ctx[6][0];
+    			input.value = input.__value;
+    			/*$$binding_groups*/ ctx[4][0].push(input);
+    			add_location(input, file$1, 33, 10, 959);
+    			attr_dev(label, "class", "demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect");
+    			attr_dev(label, "for", "gif-option-" + /*i*/ ctx[8]);
+    			add_location(label, file$1, 29, 8, 819);
+    			attr_dev(span1, "class", "mdl-list__item-secondary-action");
+    			add_location(span1, file$1, 28, 6, 763);
+    			attr_dev(li, "class", "mdl-list__item");
+    			add_location(li, file$1, 19, 4, 502);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, li, anchor);
+    			append_dev(li, span0);
+    			append_dev(span0, img);
+    			append_dev(span0, t0);
+    			append_dev(span0, t1);
+    			append_dev(li, t2);
+    			append_dev(li, span1);
+    			append_dev(span1, label);
+    			append_dev(label, input);
+    			input.checked = input.__value === /*selectedOption*/ ctx[0];
+    			append_dev(li, t3);
+
+    			if (!mounted) {
+    				dispose = listen_dev(input, "change", /*input_change_handler*/ ctx[3]);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*selectedOption*/ 1) {
+    				input.checked = input.__value === /*selectedOption*/ ctx[0];
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(li);
+    			/*$$binding_groups*/ ctx[4][0].splice(/*$$binding_groups*/ ctx[4][0].indexOf(input), 1);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block.name,
+    		type: "each",
+    		source: "(19:2) {#each gifListEntries as gif, i}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$1(ctx) {
+    	let div1;
+    	let div0;
+    	let h2;
+    	let t1;
+    	let ul;
+    	let each_value = /*gifListEntries*/ ctx[1];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div1 = element("div");
+    			div0 = element("div");
+    			h2 = element("h2");
+    			h2.textContent = "2. Pick";
+    			t1 = space();
+    			ul = element("ul");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(h2, "class", "mdl-card__title-text");
+    			add_location(h2, file$1, 15, 8, 378);
+    			attr_dev(div0, "class", "mdl-card__title svelte-pfxx9r");
+    			add_location(div0, file$1, 14, 4, 339);
+    			attr_dev(ul, "class", "mdl-list");
+    			add_location(ul, file$1, 17, 0, 439);
+    			attr_dev(div1, "class", "gif-list-container mdl-card mdl-shadow--2dp svelte-pfxx9r");
+    			add_location(div1, file$1, 12, 0, 270);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, div0);
+    			append_dev(div0, h2);
+    			append_dev(div1, t1);
+    			append_dev(div1, ul);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(ul, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*gifListEntries, selectedOption*/ 3) {
+    				each_value = /*gifListEntries*/ ctx[1];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(ul, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div1);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$1.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$1($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("GifList", slots, []);
+    	const gifListEntries = Object.entries(gifList);
+    	let { selectedOption = "partyParrot" } = $$props;
+    	let { step } = $$props;
+
+    	function submitGif() {
+    		$$invalidate(2, step = 2);
+    	}
+
+    	const writable_props = ["selectedOption", "step"];
+
+    	Object_1.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<GifList> was created with unknown prop '${key}'`);
+    	});
+
+    	const $$binding_groups = [[]];
+
+    	function input_change_handler() {
+    		selectedOption = this.__value;
+    		$$invalidate(0, selectedOption);
+    	}
+
+    	$$self.$$set = $$props => {
+    		if ("selectedOption" in $$props) $$invalidate(0, selectedOption = $$props.selectedOption);
+    		if ("step" in $$props) $$invalidate(2, step = $$props.step);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		gifList,
+    		Button,
+    		gifListEntries,
+    		selectedOption,
+    		step,
+    		submitGif
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("selectedOption" in $$props) $$invalidate(0, selectedOption = $$props.selectedOption);
+    		if ("step" in $$props) $$invalidate(2, step = $$props.step);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [selectedOption, gifListEntries, step, input_change_handler, $$binding_groups];
+    }
+
+    class GifList extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, { selectedOption: 0, step: 2 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "GifList",
+    			options,
+    			id: create_fragment$1.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*step*/ ctx[2] === undefined && !("step" in props)) {
+    			console.warn("<GifList> was created without expected prop 'step'");
+    		}
+    	}
+
+    	get selectedOption() {
+    		throw new Error("<GifList>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set selectedOption(value) {
+    		throw new Error("<GifList>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get step() {
+    		throw new Error("<GifList>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set step(value) {
+    		throw new Error("<GifList>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
     function cubicOut(t) {
         const f = t - 1.0;
         return f * f * f + 1.0;
@@ -2630,7 +2725,7 @@ var app = (function () {
     /* src\App.svelte generated by Svelte v3.38.3 */
     const file = "src\\App.svelte";
 
-    // (22:29) 
+    // (21:29) 
     function create_if_block_1(ctx) {
     	let div0;
     	let giflist;
@@ -2696,9 +2791,9 @@ var app = (function () {
     			div1 = element("div");
     			create_component(customizecanvas.$$.fragment);
     			attr_dev(div0, "class", "mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet mdl-cell--12-col-phone");
-    			add_location(div0, file, 22, 10, 739);
+    			add_location(div0, file, 21, 10, 726);
     			attr_dev(div1, "class", "mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet mdl-cell--12-col-phone");
-    			add_location(div1, file, 27, 10, 1018);
+    			add_location(div1, file, 26, 10, 1005);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
@@ -2780,14 +2875,14 @@ var app = (function () {
     		block,
     		id: create_if_block_1.name,
     		type: "if",
-    		source: "(22:29) ",
+    		source: "(21:29) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (16:8) {#if step === 1}
+    // (15:8) {#if step === 1}
     function create_if_block(ctx) {
     	let div;
     	let imageimport;
@@ -2824,7 +2919,7 @@ var app = (function () {
     			div = element("div");
     			create_component(imageimport.$$.fragment);
     			attr_dev(div, "class", "mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-phone");
-    			add_location(div, file, 16, 10, 444);
+    			add_location(div, file, 15, 10, 431);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -2877,7 +2972,7 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(16:8) {#if step === 1}",
+    		source: "(15:8) {#if step === 1}",
     		ctx
     	});
 
@@ -2918,15 +3013,15 @@ var app = (function () {
     			div0 = element("div");
     			if (if_block) if_block.c();
     			attr_dev(h1, "class", "svelte-zfkvqv");
-    			add_location(h1, file, 12, 4, 331);
+    			add_location(h1, file, 11, 4, 318);
     			attr_dev(div0, "class", "mdl-grid");
-    			add_location(div0, file, 14, 6, 386);
+    			add_location(div0, file, 13, 6, 373);
     			attr_dev(div1, "class", "main-content svelte-zfkvqv");
-    			add_location(div1, file, 13, 4, 353);
+    			add_location(div1, file, 12, 4, 340);
     			attr_dev(div2, "id", "app");
-    			add_location(div2, file, 11, 2, 312);
+    			add_location(div2, file, 10, 2, 299);
     			attr_dev(main, "class", "container");
-    			add_location(main, file, 10, 0, 285);
+    			add_location(main, file, 9, 0, 272);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3014,8 +3109,7 @@ var app = (function () {
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots("App", slots, []);
     	let step = 1;
-    	let prevStep = 0;
-    	let croppedImage, imageSelection;
+    	let croppedImage = null, imageSelection;
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -3053,14 +3147,12 @@ var app = (function () {
     		GifList,
     		scale,
     		step,
-    		prevStep,
     		croppedImage,
     		imageSelection
     	});
 
     	$$self.$inject_state = $$props => {
     		if ("step" in $$props) $$invalidate(0, step = $$props.step);
-    		if ("prevStep" in $$props) prevStep = $$props.prevStep;
     		if ("croppedImage" in $$props) $$invalidate(1, croppedImage = $$props.croppedImage);
     		if ("imageSelection" in $$props) $$invalidate(2, imageSelection = $$props.imageSelection);
     	};
@@ -3097,9 +3189,9 @@ var app = (function () {
 
     const app = new App({
     	target: document.body,
-    	props: {
-    		name: 'world'
-    	}
+    	// props: {
+    	// 	name: 'world'
+    	// }
     });
 
     return app;
