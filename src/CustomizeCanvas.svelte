@@ -1,7 +1,6 @@
 <script>
   import { onMount, afterUpdate } from "svelte";
   import * as gifList from "./giflist";
-  import GifList from './GifList.svelte';
   import Button from "./Button.svelte";
   import GIF from "./gif.js";
 
@@ -9,8 +8,8 @@
   export let croppedImage;
   export let step;
   const goBackStep = () => {
-      step = 1;
-  }
+    step = 1;
+  };
   let faceImage;
   export let imageSelection = "partyParrot";
   let imageFrameCount = 36;
@@ -21,14 +20,11 @@
   let arr;
 
   let canvasOffset,
-    canvasWidth,
     offsetX,
     offsetY,
     canMouseX,
     canMouseY,
-    canvasHeight,
     isDragging = false,
-    canDrag = true,
     position = { x: 0, y: 0 },
     imageOrigPos = { ...position },
     clickOrigPos,
@@ -39,15 +35,13 @@
   onMount(() => {
     canvas = document.getElementById("gifCanvas");
     ctx = canvas.getContext("2d");
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
     setOffsets();
     document.addEventListener("scroll", setOffsets);
     window.addEventListener("resize", setOffsets);
     extractGif().then((imgArr) => {
       arr = imgArr;
-        positionsArr = [...gifList[imageSelection].positions];
-        imagePlayRate = gifList[imageSelection].playSpeed;
+      positionsArr = [...gifList[imageSelection].positions];
+      imagePlayRate = gifList[imageSelection].playSpeed;
       setFrame(0);
     });
   });
@@ -55,10 +49,10 @@
   afterUpdate(() => {
     console.log(imageSelection);
     if (faceImage !== croppedImage || imageSelection !== loadedSelection) {
-        console.log(imageSelection, loadedSelection);
+      console.log(imageSelection, loadedSelection);
       faceImage = croppedImage;
       extractGif(imageSelection).then((imgArr) => {
-          console.log(imgArr);
+        console.log(imgArr);
         loadedSelection = imageSelection;
         positionsArr = [...gifList[imageSelection].positions];
         imagePlayRate = gifList[imageSelection].playSpeed;
@@ -115,18 +109,13 @@
   function drawOverlayImage(frameCount, overrideCtx) {
     if (faceImage) {
       const targetCtx = overrideCtx ?? ctx;
-      const midX = faceImage.width / 4;
-      const midY = faceImage.height / 4;
-      const posX = 
-        positionsArr[frameCount]?.x ? positionsArr[frameCount].x : 0;
-        const posY = 
-        positionsArr[frameCount]?.y ? positionsArr[frameCount].y : 0;
-      console.log(midX, midY);
+      const posX = positionsArr[frameCount]?.x ? positionsArr[frameCount].x : 0;
+      const posY = positionsArr[frameCount]?.y ? positionsArr[frameCount].y : 0;
       console.log(positionsArr, frameCount);
       targetCtx.drawImage(
         faceImage,
-        posX,
-        posY,
+        posX - faceImage.width / 2,
+        posY - faceImage.height / 2,
         faceImage.width,
         faceImage.height
       );
@@ -151,11 +140,13 @@
   }
 
   function handleImageMouseDown(e) {
-      
-    const posX = 
-        positionsArr[frameCount]?.x ? positionsArr[frameCount].x : 0;
-        const posY = 
-        positionsArr[frameCount]?.y ? positionsArr[frameCount].y : 0;
+    canMouseX = parseInt(e.offsetX);
+    canMouseY = parseInt(e.offsetY);
+    const [posX, posY, actualPosX, actualPosY] = getCenterCoords(
+      positionsArr[frameCount],
+      faceImage
+    );
+    console.log(canMouseX, canMouseY, posX, posY);
     if (
       e.button === 0 &&
       canMouseX > posX &&
@@ -164,29 +155,29 @@
       canMouseY < posY + faceImage.height
     ) {
       clickOrigPos = { x: canMouseX, y: canMouseY };
-      imageOrigPos = { x: posX, y: posY };
+      imageOrigPos = { x: actualPosX, y: actualPosY };
       console.log("orig pos", clickOrigPos);
       isDragging = true;
     }
   }
 
   function handleImageMouseUp(e) {
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
+    canMouseX = parseInt(e.offsetX);
+    canMouseY = parseInt(e.offsetY);
     // clear the drag flag
     isDragging = false;
   }
 
   function handleImageMouseOut(e) {
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
+    canMouseX = parseInt(e.offsetX);
+    canMouseY = parseInt(e.offsetY);
     // user has left the canvas, so clear the drag flag
     isDragging = false;
   }
 
   function handleImageMouseMove(e) {
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
+    canMouseX = parseInt(e.offsetX);
+    canMouseY = parseInt(e.offsetY);
     // if the drag flag is set, clear the canvas and draw the image
     if (isDragging) {
       console.log(canMouseX, canMouseY);
@@ -203,19 +194,13 @@
     drawAnimatedImage(frame);
     drawOverlayImage(frame);
   }
-
-//   function handleGifChange(event) {
-//       console.log(event.target.value);
-//       imageSelection = event.target.value;
-//       extractGif(imageSelection).then((imgArr) => {
-//           console.log(imgArr);
-//         loadedSelection = imageSelection;
-//         positionsArr = [...gifList[imageSelection].positions];
-//         imagePlayRate = gifList[imageSelection].playSpeed;
-//         arr = imgArr;
-//         setFrame(0);
-//       });
-//   }
+  function getCenterCoords(origPos, image) {
+    const posX = origPos?.x ?? 0;
+    const posY = origPos?.y ?? 0;
+    const centerOffsetX = image.width / 2;
+    const centerOffsetY = image.height / 2;
+    return [posX - centerOffsetX, posY - centerOffsetY, posX, posY];
+  }
 
   function generateGif() {
     const gif = new GIF({
@@ -252,9 +237,9 @@
 </script>
 
 <div class="customize-canvas-container mdl-card mdl-shadow--2dp">
-    <div class="mdl-card__title">
-      <h2 class="mdl-card__title-text">3. Generate</h2>
-    </div>
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">3. Generate</h2>
+  </div>
   <span class="gif-canvas-container">
     <canvas
       id="gifCanvas"
@@ -295,14 +280,15 @@
   <div class="mdl-card__supporting-text">INSTRUCTIONS HERE</div>
   <div class="mdl-card__actions mdl-card--border">
     <Button id="goback" onClick={goBackStep} buttonText="Back" />
-    <Button id="generate" onClick={generateGif} buttonText="Generate" /></div>
+    <Button id="generate" onClick={generateGif} buttonText="Generate" />
+  </div>
 </div>
 
 <style>
   .customize-canvas-container {
-      width: 100%;
+    width: 100%;
   }
-  
+
   .mdl-card__title {
     justify-content: center;
   }
@@ -315,9 +301,9 @@
   }
 
   .mdl-button--2mini-fab {
-      height: 30px;
-      min-width: 30px;
-      width: 30px;
+    height: 30px;
+    min-width: 30px;
+    width: 30px;
   }
 
   .gif-canvas {

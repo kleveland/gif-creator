@@ -11,7 +11,6 @@
 
   export let croppedImage;
   export let step;
-  export let nextStep;
 
   let canvas,
     ctx,
@@ -73,21 +72,17 @@
       ctx.drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
       drawOutline();
     }
-    curPointX = e.offsetX;
-    curPointY = e.offsetY;
   }
 
   function onScroll(e) {
     e.preventDefault();
-    if (checkScrollDirectionIsUp(e))
-      setZoom(zoomLevel + (zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE));
-    else setZoom(zoomLevel - (zoomLevel > 1 ? ZOOM_INCREASE : ZOOM_DECREASE));
+    const zoomMagnitude = zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE;
+    const zoomDelta = zoomMagnitude * (checkScrollDirectionIsUp(e) ? 1 : -1);
+    setZoom(zoomLevel + zoomDelta);
   }
 
   function checkScrollDirectionIsUp(event) {
-    if (event.wheelDelta) {
-      return event.wheelDelta > 0;
-    }
+    if (event.wheelDelta) return event.wheelDelta > 0;
     return event.deltaY < 0;
   }
 
@@ -279,7 +274,6 @@
         rightMost - leftMost,
         bottomMost - topMost,
         (img) => {
-          nextStep = 2;
           step = 2;
           croppedImage = img;
         }

@@ -4,8 +4,7 @@
   import GifList from "./GifList.svelte";
 	import { scale} from 'svelte/transition';
   let step = 1;
-  let prevStep = 0;
-  let croppedImage, imageSelection;
+  let croppedImage = null, imageSelection;
 </script>
 
 <main class="container">
