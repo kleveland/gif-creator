@@ -6,6 +6,7 @@
   const ZOOM_DECREASE = 0.05;
   const INIT_WIDTH_CANVAS = 400;
   const POINT_SIZE = 4;
+  const UNDO_KEYCODE = 90;
 
   let fileinput;
 
@@ -26,7 +27,8 @@
     clickOrigPos,
     newWidth,
     newHeight,
-    isDragging = false;
+    isDragging = false,
+    isImageImported = false;
   let points = [];
 
   onMount(() => {
@@ -63,22 +65,25 @@
   function onImageMouseMove(e) {
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
-    if (isDragging) {
+    if (isDragging && isImageImported) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       position = {
         x: imageOrigPos.x - (clickOrigPos.x - canMouseX),
         y: imageOrigPos.y - (clickOrigPos.y - canMouseY),
       };
-      ctx.drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
-      drawOutline();
+      // ctx.drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
+      // drawOutline();
+      refreshFrame();
     }
   }
 
   function onScroll(e) {
     e.preventDefault();
-    const zoomMagnitude = zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE;
-    const zoomDelta = zoomMagnitude * (checkScrollDirectionIsUp(e) ? 1 : -1);
-    setZoom(zoomLevel + zoomDelta);
+    if (isImageImported) {
+      const zoomMagnitude = zoomLevel >= 1 ? ZOOM_INCREASE : ZOOM_DECREASE;
+      const zoomDelta = zoomMagnitude * (checkScrollDirectionIsUp(e) ? 1 : -1);
+      setZoom(zoomLevel + zoomDelta);
+    }
   }
 
   function checkScrollDirectionIsUp(event) {
@@ -92,6 +97,7 @@
     console.log("current mouse pos", canMouseX, canMouseY);
     console.log("current image pos", position.x, position.y);
     if (
+      isImageImported &&
       e.button === 0 &&
       canMouseX > position.x &&
       canMouseY > position.y &&
@@ -105,12 +111,21 @@
     }
   }
 
+  function onKeyDown(e) {
+    if (e.keyCode === UNDO_KEYCODE) {
+      console.log("undo");
+      points.pop();
+      console.log(points);
+
+      refreshFrame();
+    }
+  }
+
   function onImageMouseUp(e) {
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
     isDragging = false;
-    if (e.button === 1 && imageObj)
-      setImageLoad(canvas.toDataURL("image/jpeg"));
+    if (isImageImported && e.button === 1 && imageObj) refreshFrame();
   }
 
   function onImageMouseOut(e) {
@@ -121,12 +136,21 @@
 
   function onImageRightClick(e) {
     e.preventDefault();
-    console.log("adding pointer");
+    if (isImageImported) {
+      console.log("adding pointer");
 
-    //store the points on mousedown
-    const point = { x: e.offsetX, y: e.offsetY };
-    points.push(point);
+      //store the points on mousedown
+      const point = { x: e.offsetX, y: e.offsetY };
+      points.push(point);
 
+      drawFullPointPath();
+    }
+  }
+
+  function refreshFrame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(rawImageObj, position.x, position.y, newWidth, newHeight);
+    drawOutline();
     drawFullPointPath();
   }
 
@@ -188,13 +212,14 @@
           canvas.height,
           true
         );
+        isImageImported = true;
         setOffsets();
       };
     };
   }
 
   function setImageLoad(
-    imageSrc,
+    imageSrc = canvas.toDataURL("image/jpeg"),
     width = newWidth,
     height = newHeight,
     newImageObj = false,
@@ -248,7 +273,7 @@
     let rightMost = 0;
     let bottomMost = 0;
     for (let i = 0; i < points.length; i++) {
-      const {x, y} = points[i];
+      const { x, y } = points[i];
 
       if (x < leftMost) leftMost = x;
       if (y < topMost) topMost = y;
@@ -282,10 +307,8 @@
   }
 </script>
 
+<svelte:window on:keydown={onKeyDown} />
 <div class="image-import-container mdl-card mdl-shadow--2dp">
-  <div class="mdl-card__title">
-    <h2 class="mdl-card__title-text">1. Crop</h2>
-  </div>
   <div>
     <canvas
       id="cropCanvas"
@@ -299,7 +322,12 @@
       on:mouseout={onImageMouseOut}
     />
   </div>
-  <div class="mdl-card__supporting-text">INSTRUCTIONS HERE</div>
+  <div class="mdl-card__supporting-text">
+      1. Choose an image<br>
+        2. Scroll to zoom in and out to fit a face around the size of the outline. <br>
+      3. Right click to place points to outline the face. Ctrl+Z to undo.<br>
+      4. Press "Crop Selection"
+  </div>
   <div class="mdl-card__actions mdl-card--border">
     <button
       class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored"
@@ -333,9 +361,11 @@
     width: 100%;
     margin: auto;
   }
-  .mdl-card__title {
-    justify-content: center;
+
+  .mdl-card__supporting-text {
+    width: 100%;
   }
+
   canvas {
     box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%),
       0 1px 5px 0 rgb(0 0 0 / 12%);

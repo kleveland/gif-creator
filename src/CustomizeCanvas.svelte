@@ -237,9 +237,6 @@
 </script>
 
 <div class="customize-canvas-container mdl-card mdl-shadow--2dp">
-  <div class="mdl-card__title">
-    <h2 class="mdl-card__title-text">3. Generate</h2>
-  </div>
   <span class="gif-canvas-container">
     <canvas
       id="gifCanvas"
@@ -277,7 +274,11 @@
       <i class="material-icons">add</i>
     </button>
   </div>
-  <div class="mdl-card__supporting-text">INSTRUCTIONS HERE</div>
+  <div class="mdl-card__supporting-text">
+    1. Press + to go forward, - to go backward<br>
+    2. Drag the face around if its not positioned correctly <br>
+  3. Press "Generate" to download!
+  </div>
   <div class="mdl-card__actions mdl-card--border">
     <Button id="goback" onClick={goBackStep} buttonText="Back" />
     <Button id="generate" onClick={generateGif} buttonText="Generate" />
@@ -289,9 +290,6 @@
     width: 100%;
   }
 
-  .mdl-card__title {
-    justify-content: center;
-  }
   .frame-count-container {
     display: flex;
     justify-content: center;
